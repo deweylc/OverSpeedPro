@@ -36,6 +36,10 @@ void DMIView::OnDraw(CDC* pDC)
 	DrawXY(pDC, 560, 200, CPoint(50, 300), 3000, 250);
 	Draw_EB_Curve(3000);
 	Draw_EB_Chufa_Curve(3000);
+	CPoint p;
+	p.x = 1200;
+	p.y = 300;
+	Draw_Dashboard(CPoint(1200,300),200);
 }
 
 //坐标系绘制
@@ -302,14 +306,87 @@ void DMIView::Draw_EB_Chufa_Curve(double target)
 	pDC->SelectObject(oldPen);
 }
 
-void DMIView::Draw_Dashboard(double v)
+void DMIView::Draw_Dashboard(CPoint center,double r)
 {
+	double v;
+	v = 120;
+	CDC* pDC = CWnd::GetDC();
+	CPen newpen(PS_SOLID, 2, RGB(0, 0, 0));
+	CPen* oldpen = pDC->SelectObject(&newpen);
+	CRect rec;
+	rec.left = center.x - r;
+	rec.right = center.x + r;
+	rec.top = center.y - r;
+	rec.bottom = center.y + r;
+	//pDC->Rectangle(rec);
 
+	double PI = acos(-1);
+	CPoint p1;
+	CPoint p2;
+	double arc;
+	p1.x = center.x + r * cos((-35.0 / 180.0) * PI);
+	p1.y = center.y - r * sin((-35.0 / 180.0) * PI);
+	p2.x = center.x + r * cos((215.0 / 180.0) * PI);
+	p2.y = center.y - r * sin((215.0 / 180.0) * PI);
+	CPen newpen2(PS_DASHDOTDOT, 0.5, RGB(0, 0, 0));
+	oldpen = pDC->SelectObject(&newpen2);
+	//刻度盘外沿
+	pDC->Arc(rec, p1, p2);
+	
+	pDC->SelectObject(oldpen);
+	//分刻度
+	for (int i = 0; i < 251; i++)
+	{
+		if (i % 10 == 0)
+		{
+			int a = 10;
+			if (i % 50 == 0)
+				a = 30;
+			arc = -35.0 + i;
+			CPoint p1;
+			CPoint p2;
+			p1.x = center.x + (r - a) * cos((arc / 180.0) * PI);
+			p1.y = center.y - (r - a) * sin((arc / 180.0) * PI);
+			p2.x = center.x + r * cos((arc / 180.0) * PI);
+			p2.y = center.y - r * sin((arc / 180.0) * PI);
+			pDC->MoveTo(p1);
+			pDC->LineTo(p2);
+			if (i % 50 == 0)
+			{
+				double x = center.x + (r - a - 15) * cos((arc / 180.0) * PI);
+				double y = center.y - (r - a - 15) * sin((arc / 180.0) * PI);
+
+				CString str;
+				str.Format(_T("%d"),250-i);
+				pDC->TextOutW(x, y, str);
+			}
+		}
+	}
+	//指针
+	CPoint p_1;
+	CPoint p_2;
+	CPoint p_3;
+	p_1.x = center.x + (r-40) * cos(((215.0-v) / 180.0) * PI);
+	p_1.y = center.y - (r-40) * sin(((215.0 - v) / 180.0) * PI);
+	p_2.x = center.x + 30 * cos(((215.0 - v-10) / 180.0) * PI);
+	p_2.y = center.y - 30 * sin(((215.0 - v-10) / 180.0) * PI);
+	p_3.x = center.x + 30 * cos(((215.0 - v+10) / 180.0) * PI);
+	p_3.y = center.y - 30 * sin(((215.0 - v+10) / 180.0) * PI);
+	pDC->Ellipse(center.x - 30, center.y - 30, center.x + 30, center.y + 30);
+	CString str;
+	str.Format(_T("%.0f"), v);
+	pDC->TextOutW(center.x-12, center.y-7, str);
+	pDC->MoveTo(p_2);
+	pDC->LineTo(p_1);
+	pDC->MoveTo(p_3);
+	pDC->LineTo(p_1);
+	pDC->SelectObject(oldpen);
+	
 }
 
 double DMIView::US_Distance(double v1, double v2)
 {
-
+	return 0;
 }
 // DMIView 诊断
 

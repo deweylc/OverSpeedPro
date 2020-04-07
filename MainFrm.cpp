@@ -113,3 +113,11 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	return true;
 	//return CFrameWnd::OnCreateClient(lpcs, pContext);
 }
+
+
+void CMainFrame::ActivateFrame(int nCmdShow)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	nCmdShow = SW_MAXIMIZE;
+	CFrameWnd::ActivateFrame(nCmdShow);
+}

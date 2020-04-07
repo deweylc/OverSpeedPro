@@ -29,7 +29,7 @@ public:
 	virtual void Draw_EB_Curve(double target);//根据目标点绘制紧急制动曲线
 	virtual void Draw_EB_Chufa_Curve(double target);//绘制紧急制动触发曲线
 	virtual void Draw_Dashboard(double v);//根据当前速度绘制仪表盘
-	
+	virtual double US_Distance(double v1, double v2);//常用制动 制动距离 安全余量100m
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE

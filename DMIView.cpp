@@ -306,6 +306,11 @@ void DMIView::Draw_Dashboard(double v)
 {
 
 }
+
+double DMIView::US_Distance(double v1, double v2)
+{
+
+}
 // DMIView 诊断
 
 #ifdef _DEBUG

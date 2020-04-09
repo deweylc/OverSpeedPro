@@ -23,14 +23,16 @@ public:
 	virtual double EB_Breaking_Acc(double v);//速度v对应的制动加速度a
 	virtual double Basic_Drag_Acc(double v);//基本阻力导致的加速度
 	virtual double Add_Drag_Acc(double v);//附加阻力导致的加速度
-	virtual double GetAcc(double v);//速度v对应的总加速度
+	virtual double GetAcc_EB(double v);//速度v对应的紧急制动总加速度
+	virtual double SB_Breaking_Acc(double v);//常用制动加速度
+	virtual double GetAcc_SB(double v);//速度v对应的常用制动总加速度
 	virtual double EB_Distance(double v1, double v2);//从速度v1减速至速度v2的制动距离 考虑安全余量100m
 	virtual double EB_Distance_chufa(double v1, double v2);//触发曲线，考虑安全制动模型
 	virtual void Draw_EB_Curve(double target);//根据目标点绘制紧急制动曲线
 	virtual void Draw_EB_Chufa_Curve(double target);//绘制紧急制动触发曲线
 	virtual void Draw_Dashboard(CPoint center,double r);//根据当前速度绘制仪表盘
-
-	virtual double US_Distance(double v1, double v2);//常用制动 制动距离 安全余量100m
+	virtual void Draw_SB_Curve(double target);//根据目标点绘制7N常用制动曲线
+	virtual double SB_Distance(double v1, double v2);//常用制动 制动距离 安全余量100m
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE

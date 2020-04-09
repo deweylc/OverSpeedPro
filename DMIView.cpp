@@ -13,7 +13,12 @@ IMPLEMENT_DYNCREATE(DMIView, CView)
 
 DMIView::DMIView()
 {
-
+	 long_x=0;
+	 long_y=0;
+	 start.x=0;
+	 start.y = 0;
+	 MaxX=0;
+	 MaxY=0;
 }
 
 DMIView::~DMIView()
@@ -33,13 +38,14 @@ void DMIView::OnDraw(CDC* pDC)
 
 	CRect rect;
 	GetClientRect(&rect);
-	DrawXY(pDC, 560, 200, CPoint(50, 300), 3000, 250);
-	Draw_EB_Curve(3000);
-	Draw_EB_Chufa_Curve(3000);
+	DrawXY(pDC, 1660, 300, CPoint(50, 400), 4000, 250);
+	Draw_EB_Curve(4000);
+	Draw_EB_Chufa_Curve(4000);
+	Draw_SB_Curve(4000);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
-	Draw_Dashboard(CPoint(1200,300),200);
+//	Draw_Dashboard(CPoint(1200,300),200);
 }
 
 //坐标系绘制
@@ -167,7 +173,7 @@ double DMIView::EB_Breaking_Acc(double v)
 		a = 0;
 	else if (v <= 70)
 		a = 1.1222;
-	else if (v <= 210)
+	else if (v <= 250)
 	{
 		double a5 = 0.000000000043466 * pow(v, 5);
 		double a4 = -0.000000030563084 * pow(v, 4);
@@ -181,7 +187,27 @@ double DMIView::EB_Breaking_Acc(double v)
 		a = 0;
 	return a;
 }
-
+double DMIView::SB_Breaking_Acc(double v)
+{
+	double a;
+	if (v < 0)
+		a = 0;
+	else if (v <= 70)
+		a = 0.7472;
+	else if (v <= 250)
+	{
+		double a5 = 0.000000000029217 * pow(v, 5);
+		double a4 = -0.000000020548613 * pow(v, 4);
+		double a3 = 0.000005555126797 * pow(v, 3);
+		double a2 = -0.000710742552015 * pow(v, 2);
+		double a1 = 0.040413892468555 * pow(v, 1);
+		double a0 = -0.060695538869822 * pow(v, 0);
+		a = a5 + a4 + a3 + a2 + a1 + a0;
+	}
+	else
+		a = 0;
+	return a;
+}
 //基本阻力
 double DMIView::Basic_Drag_Acc(double v)
 {
@@ -196,10 +222,15 @@ double DMIView::Add_Drag_Acc(double v)
 }
 
 //总减速度
-double DMIView::GetAcc(double v)
+double DMIView::GetAcc_EB(double v)
 {
 	double a = EB_Breaking_Acc(v) + Basic_Drag_Acc(v) + Add_Drag_Acc(v);
-	//保留4位小数;
+	
+	return a;
+}
+double DMIView::GetAcc_SB(double v)
+{
+	double a = SB_Breaking_Acc(v) + Basic_Drag_Acc(v) + Add_Drag_Acc(v);
 	return a;
 }
 double DMIView::EB_Distance(double v1, double v2)
@@ -208,13 +239,30 @@ double DMIView::EB_Distance(double v1, double v2)
 	double S = 0;
 	for (int i = 0; i < k; i++)
 	{
-		double a_new = (GetAcc(v1) + GetAcc(v2)) / 2;
+		double a_new = (GetAcc_EB(v1) + GetAcc_EB(v2)) / 2;
 		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
 		S = S + s_new;
 	}
 	//保留6位小数
 	//return floor(S * 100000000.000f + 0.5) / 100000000.000f;
 	return S+100;
+}
+double DMIView::SB_Distance(double v1, double v2)
+{
+	int k = (int)(v1 - v2);
+	double S = 0;
+	S = (v1 * 3.05) / 3.6;
+	for (int i = 0; i < k; i++)
+	{
+		double a_new = (GetAcc_SB(v1) + GetAcc_SB(v2)) / 2;
+		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
+		S = S + s_new;
+	}
+	S += 100;//常用制动距离
+	
+	double S_c;
+	S_c = (v1 * 2.3) / 3.6 + EB_Distance_chufa(v1, v2);
+	return S;
 }
 void DMIView::Draw_EB_Curve(double target)
 {	
@@ -254,12 +302,51 @@ void DMIView::Draw_EB_Curve(double target)
 	pDC->LineTo(p[point.size() - 1]);
 	pDC->SelectObject(oldPen);
 }
+
+void DMIView::Draw_SB_Curve(double target)
+{
+	CDC* pDC = CWnd::GetDC();
+	//计算n个点的函数值
+	double n = 200;
+	vector<pair<double, double>> point;
+	for (double i = 0; i < n; i++)
+	{
+		double step3 = 1;//速度步长
+		point.push_back(pair<double, double>(i * step3, target - SB_Distance(i, 0)));
+	}
+	point.push_back(pair<double, double>(200, target - SB_Distance(200, 0) - 300.0));//200km/h制动距离上预留300m的顶棚速度防护区域
+
+
+	//函数值与坐标转换
+	CPoint* p = new CPoint[point.size()];
+	for (int i = 0; i < point.size(); i++)
+	{
+		double x = (point[i].second / MaxX) * long_x;
+		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
+		p[i].x = x + start.x;
+		p[i].y = start.y - y;
+	}
+	CPen newPen2(BS_SOLID, 2, RGB(0, 255, 0));
+	CPen* oldPen = pDC->SelectObject(&newPen2);
+	//将点集point连接起来
+	//Draw_X(pDC, p[0]);图上标点
+	pDC->MoveTo(p[0]);
+	for (int i = 1; i < point.size(); i++)
+	{
+		//Draw_X(pDC, p[i]);
+		pDC->LineTo(p[i]);
+		pDC->MoveTo(p[i]);
+	}
+	pDC->LineTo(p[point.size() - 1]);
+	pDC->SelectObject(oldPen);
+}
+
 double DMIView::EB_Distance_chufa(double v1, double v2)
 {
 	double a_max = 0.42;//失控加速时考虑的牵引加速度 
-	double tc = 0.8;
-	double td = 1.5;
-	double tefg = 2.8;//安全制动模型各阶段时间
+	double tc = 0.75;
+	double td = 0.4;
+	double tefg = 1.9;//安全制动模型各阶段时间
 	double Sc = (v1*tc) / 3.6;
 	double Sd = (v1 / 3.6) * td + 0.5 * a_max * td * td;
 	double Vend = v1 + a_max * td * 3.6;
@@ -384,10 +471,7 @@ void DMIView::Draw_Dashboard(CPoint center,double r)
 	
 }
 
-double DMIView::US_Distance(double v1, double v2)
-{
-	return 0;
-}
+
 // DMIView 诊断
 
 #ifdef _DEBUG

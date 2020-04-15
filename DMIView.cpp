@@ -38,10 +38,10 @@ void DMIView::OnDraw(CDC* pDC)
 
 	CRect rect;
 	GetClientRect(&rect);
-	DrawXY(pDC, 1660, 300, CPoint(50, 400), 4000, 250);
-	Draw_EB_Curve(4000);
-	Draw_EB_Chufa_Curve(4000);
-	Draw_SB_Curve(4000);
+	DrawXY(pDC, 1660, 300, CPoint(50, 400), 10000, 250);
+	Draw_OverSpeedCurve(1600, 3800);
+	//Draw_EB_Chufa_Curve(4000);
+	//Draw_SB_Curve(4000);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -245,7 +245,7 @@ double DMIView::EB_Distance(double v1, double v2)
 	}
 	//保留6位小数
 	//return floor(S * 100000000.000f + 0.5) / 100000000.000f;
-	return S+100;
+	return S;
 }
 double DMIView::SB_Distance(double v1, double v2)
 {
@@ -264,21 +264,23 @@ double DMIView::SB_Distance(double v1, double v2)
 	S_c = (v1 * 2.3) / 3.6 + EB_Distance_chufa(v1, v2);
 	return S;
 }
-void DMIView::Draw_EB_Curve(double target)
+CPoint* DMIView::Draw_EB_Curve(double target,double target_v)
 {	
 	CDC* pDC = CWnd::GetDC();
 	//计算n个点的函数值
-	double n = 200;
+	double n =200-target_v;
 	vector<pair<double, double>> point;
-	for (double i = 0; i < n; i++)
+	for (double i = target_v; i < 200; i++)
 	{
 		double step3 = 1;//速度步长
-		point.push_back(pair<double, double>(i * step3, target-EB_Distance(i,0)));
+		point.push_back(pair<double, double>(i * step3, target-EB_Distance(i,target_v)));
 	}
-	point.push_back(pair<double, double>(200, target-EB_Distance(200,0)-300.0));//200km/h制动距离上预留300m的顶棚速度防护区域
+	point.push_back(pair<double, double>(200, target-EB_Distance(200,target_v)-0));//200km/h制动距离上预留#m的顶棚速度防护区域
 
 
 	//vector<pair<double, double>> point = EB_Curve(3000);//目标点为3000m
+
+	static CPoint res[2];
 	//函数值与坐标转换
 	CPoint* p = new CPoint[point.size()];
 	for (int i = 0; i < point.size(); i++)
@@ -287,6 +289,10 @@ void DMIView::Draw_EB_Curve(double target)
 		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
 		p[i].x = x + start.x;
 		p[i].y = start.y - y;
+		if (i == point.size() - 1)
+			res[0] = p[i];
+		if (i == 0)
+			res[1] = p[i];
 	}
 	CPen newPen2(BS_SOLID, 2, RGB(255, 0, 0));
 	CPen *oldPen = pDC->SelectObject(&newPen2);
@@ -301,8 +307,70 @@ void DMIView::Draw_EB_Curve(double target)
 	}
 	pDC->LineTo(p[point.size() - 1]);
 	pDC->SelectObject(oldPen);
+	return res;
 }
+CPoint*  DMIView::Draw_EB_Curve(double target1, double target2, double target_v,double start_v)
+{
+	CDC* pDC = CWnd::GetDC();
 
+	vector<pair<double, double>> point;
+	double end_v = target_v;
+	if (target_v > start_v)
+		end_v = start_v;
+	for (double i = end_v; i < 200; i++)
+	{
+		double step3 = 1;//速度步长
+		double s = target2 - EB_Distance(i, end_v);
+		if (s < target1)
+		{
+			double v = i;
+			if (v > start_v)
+				v = start_v;
+			else v--;
+			point.push_back(pair<double, double>(v, target1));
+			break;
+		}
+		
+		double v = i;
+		if (v > start_v)
+			v = start_v;
+		point.push_back(pair<double, double>(v, s));
+	}
+	if (point.back().second > target1)
+		point.push_back(pair<double, double>(200, target1));
+
+	
+
+	static CPoint res[2];
+	//函数值与坐标转换
+	CPoint* p = new CPoint[point.size()];
+	for (int i = 0; i < point.size(); i++)
+	{
+		double x = (point[i].second / MaxX) * long_x;
+		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
+		p[i].x = x + start.x;
+		p[i].y = start.y - y;
+		if (i == point.size() - 1)
+			res[0] = p[i];
+		if (i == 0)
+			res[1] = p[i];
+	}
+	
+	CPen newPen2(BS_SOLID, 2, RGB(255, 0, 0));
+	CPen* oldPen = pDC->SelectObject(&newPen2);
+	//将点集point连接起来
+	//Draw_X(pDC, p[0]);图上标点
+	pDC->MoveTo(p[0]);
+	for (int i = 1; i < point.size(); i++)
+	{
+		//Draw_X(pDC, p[i]);
+		pDC->LineTo(p[i]);
+		pDC->MoveTo(p[i]);
+	}
+	pDC->LineTo(p[point.size() - 1]);
+	pDC->SelectObject(oldPen);
+	return res;
+}
 void DMIView::Draw_SB_Curve(double target)
 {
 	CDC* pDC = CWnd::GetDC();
@@ -471,7 +539,115 @@ void DMIView::Draw_Dashboard(CPoint center,double r)
 	
 }
 
+void DMIView::Draw_OverSpeedCurve(double position,double target)
+{
+	target = 4000;
+	//获取临时限速信息
+	vector<pair<pair<double,double>, pair<double, double>>> ssp;//限速值,入口速度，出口速度，限速区间
+	pair<double, double> p1(100, 160);
+	pair<double, double> p2(1000, 1500);
+	ssp.push_back(pair < pair<double, double>, pair<double, double>>(p1, p2));
+	pair<double, double> p3(160, 200);
+	pair<double, double> p4(1500, 2000);
+	ssp.push_back(pair < pair<double, double>, pair<double, double>>(p3, p4)); 
 
+	if (ssp.size() == 0)
+	{
+		Draw_EB_Curve(target, 0);
+		return;
+	}
+
+	//画出限速区域
+	CPoint point1;
+	CPoint point2;
+	point1.x = (ssp[0].second.first / MaxX) * long_x + start.x;
+	point1.y = start.y - (ssp[0].first.first / MaxY) * long_y;
+	point2.x = (ssp[0].second.second / MaxX) * long_x + start.x;
+	point2.y = start.y - (ssp[0].first.first / MaxY) * long_y;
+	CPoint point3;
+	CPoint point4;
+	point3.x = (ssp[1].second.first / MaxX) * long_x + start.x;
+	point3.y = start.y - (ssp[1].first.first / MaxY) * long_y;
+	point4.x = (ssp[1].second.second / MaxX) * long_x + start.x;
+	point4.y = start.y - (ssp[1].first.first / MaxY) * long_y;
+
+
+	CDC* pDC = CWnd::GetDC();
+	CPen pen1(PS_SOLID, 2, RGB(0, 255, 0));
+	CPen* oldpen1 = pDC->SelectObject(&pen1);
+	pDC->MoveTo(point1);
+	pDC->LineTo(point2);
+	pDC->MoveTo(point3);
+	pDC->LineTo(point4);
+	pDC->SelectObject(oldpen1);
+
+	pair<pair<double, double>, pair<double, double>> ssp_1;
+	CPoint* s_e;
+
+
+	vector<pair<CPoint, CPoint>> vec;
+	//限速区1
+		ssp_1 = ssp[0];
+		//限速区的超速防护速度小于限速值？
+		if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.first)
+		{
+			Draw_EB_Curve(target, 0);
+		
+		}
+		else if (EB_Distance(ssp_1.first.first, ssp_1.first.second) > ssp_1.second.second - ssp_1.second.first)
+		{
+			double a = EB_Distance(ssp_1.first.first, ssp_1.first.second);
+			double b = ssp_1.second.second - ssp_1.second.first;
+			Draw_EB_Curve(ssp_1.second.second, ssp_1.first.second);
+		}
+		else
+		{
+			Draw_EB_Curve(position,ssp_1.second.first, ssp_1.first.first,200);
+			s_e=Draw_EB_Curve(ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
+			vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
+		}
+
+	//限速区2	
+		ssp_1 = ssp[1];
+		//限速区的超速防护速度小于限速值？
+		if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.first)
+		{
+			s_e=Draw_EB_Curve(ssp_1.second.first,target,0.0,ssp_1.first.first);
+			vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
+		}
+		else
+		{
+			
+			if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.second)
+			{
+				s_e=Draw_EB_Curve(ssp_1.second.first, target, 0, ssp_1.first.first);
+				vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
+			}			
+			else
+			{
+				s_e=Draw_EB_Curve(ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
+				vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
+				s_e=Draw_EB_Curve(ssp_1.second.second, target, 0, ssp_1.first.second);
+				vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
+			}
+				
+		}
+
+		
+	//分段曲线连接
+		CPen newPen2(BS_SOLID, 2, RGB(255, 0, 0));
+		CPen* oldPen = pDC->SelectObject(&newPen2);
+		for (int i = 1; i < vec.size(); i++)
+		{
+			pDC->MoveTo(vec[i - 1].second);
+			pDC->LineTo(vec[i].first);
+		}
+		pDC->SelectObject(oldPen);
+	//Draw_EB_Curve(target, 0);
+		return;
+
+
+}
 // DMIView 诊断
 
 #ifdef _DEBUG

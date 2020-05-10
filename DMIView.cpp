@@ -46,7 +46,7 @@ void DMIView::OnDraw(CDC* pDC)
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
-	Draw_Dashboard(CPoint(1200,300),200);
+	Draw_Dashboard(CPoint(1100,300),160);
 }
 
 //坐标系绘制

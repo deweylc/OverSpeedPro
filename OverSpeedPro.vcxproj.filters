@@ -45,6 +45,15 @@
     <ClInclude Include="DMIView.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CSignal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CReadData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockSec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OverSpeedPro.cpp">
@@ -66,6 +75,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DMIView.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CSignal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CReadData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockSec.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

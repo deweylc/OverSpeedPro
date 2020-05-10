@@ -156,6 +156,7 @@ protected:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
@@ -168,6 +169,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	//ON_BN_CLICKED(IDC_BUTTON1, &CAboutDlg::On01)
 END_MESSAGE_MAP()
 
 // 用于运行对话框的应用程序命令
@@ -178,6 +180,5 @@ void COverSpeedProApp::OnAppAbout()
 }
 
 // COverSpeedProApp 消息处理程序
-
 
 

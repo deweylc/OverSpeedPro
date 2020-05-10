@@ -39,8 +39,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
-public:
-	virtual void ActivateFrame(int nCmdShow = -1);
 };
 
 

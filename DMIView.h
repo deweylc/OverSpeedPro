@@ -37,6 +37,8 @@ public:
 	virtual void Draw_SB_Curve(double target);//根据目标点绘制7N常用制动曲线
 	virtual double SB_Distance(double v1, double v2);//常用制动 制动距离 安全余量100m
 	virtual void Draw_OverSpeedCurve(double position, double target);
+
+	virtual void DrawInfoTable(CDC* pDC);//绘制列车信息表
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE

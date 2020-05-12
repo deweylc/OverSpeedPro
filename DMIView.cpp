@@ -39,14 +39,15 @@ void DMIView::OnDraw(CDC* pDC)
 	CRect rect;
 	GetClientRect(&rect);
 	DrawXY(pDC, 660, 300, CPoint(50, 400), 5000, 250);
-	Draw_OverSpeedCurve(1600, 3800);
-	//Draw_EB_Curve(3900, 0);
-	//Draw_EB_Chufa_Curve(3900);
-	//Draw_SB_Curve(4000);
+	//Draw_OverSpeedCurve(1600, 3800);
+	Draw_EB_Curve(3900, 0);
+	Draw_EB_Chufa_Curve(3900);
+	Draw_SB_Curve(4000);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
-	Draw_Dashboard(CPoint(1100,300),160);
+//	Draw_Dashboard(CPoint(1100,300),160);
+	DrawInfoTable(pDC);
 }
 
 //坐标系绘制
@@ -649,6 +650,46 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 	return;
 
 
+}
+void DMIView::DrawInfoTable(CDC *dc)
+{
+	CPen newpen(PS_SOLID, 2, RGB(0, 0, 0));
+	CPen* oldpen = dc->SelectObject(&newpen);
+	POINT aPoint[5] = { 10,500,10,820,910,820,910,500,10,500 };
+	dc->Polyline(aPoint, 5);
+	dc->MoveTo(760, 500);
+	dc->LineTo(760, 820);
+	dc->MoveTo(310, 500);
+	dc->LineTo(310, 820);
+	dc->MoveTo(460, 500);
+	dc->LineTo(460, 820);
+	dc->MoveTo(610, 500);
+	dc->LineTo(610, 820);//列
+	dc->MoveTo(310, 580);
+	dc->LineTo(910, 580);
+	dc->MoveTo(310, 660);
+	dc->LineTo(910, 660);
+	dc->MoveTo(10, 740);
+	dc->LineTo(910, 740);//行
+	dc->MoveTo(160, 740);
+	dc->LineTo(160, 820);
+	dc->MoveTo(10, 780);
+	dc->LineTo(310, 780);//小格
+
+	CFont font;
+	font.CreatePointFont(100, TEXT("宋体"));
+	dc->SelectObject(&font);
+	dc->TextOut(345, 530, TEXT("当前速度"));
+	dc->TextOut(345, 610, TEXT("启始速度"));
+	dc->TextOut(345, 690, TEXT("目标速度"));
+	dc->TextOut(345, 770, TEXT("运行时间"));
+	dc->TextOut(645, 530, TEXT("当前位置"));
+	dc->TextOut(645, 610, TEXT("启始位置"));
+	dc->TextOut(645, 690, TEXT("目标位置"));
+	dc->TextOut(645, 770, TEXT("运行距离"));
+	dc->TextOut(45, 750, TEXT("列车号"));
+	dc->TextOut(45, 790, TEXT("司机号"));
+	dc->SelectObject(oldpen);
 }
 // DMIView 诊断
 

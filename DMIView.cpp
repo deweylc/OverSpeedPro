@@ -1,11 +1,17 @@
 ﻿// DMIView.cpp: 实现文件
 //
 
+
 #include "pch.h"
 #include "OverSpeedPro.h"
 #include "DMIView.h"
 #include<vector>
+#include"OverSpeedProDoc.h"
 #include<math.h>
+#include "framework.h"
+#include<string>
+
+
 
 // DMIView
 using namespace std;
@@ -26,28 +32,62 @@ DMIView::~DMIView()
 }
 
 BEGIN_MESSAGE_MAP(DMIView, CView)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
+BOOL DMIView::PreCreateWindow(CREATESTRUCT& cs)
+{
+	// TODO: 在此处通过修改
+	//  CREATESTRUCT cs 来修改窗口类或样式
 
+	return CView::PreCreateWindow(cs);
+}
 // DMIView 绘图
 
 void DMIView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO:  在此添加绘制代码
+	
+	//双缓冲绘图
+	CDC MemDC;//新建内存DC
+	CBitmap MemBitmap;//新建位图
+	CRect memRc;
+
+	GetClientRect(&memRc);//获得客户区矩形大小
+
+	MemDC.CreateCompatibleDC(pDC);//创建与目标DC兼容的内存DC
+	MemBitmap.CreateCompatibleBitmap(pDC, memRc.Width(), memRc.Height());//根据目标DC创建相应的位图
+	MemDC.SelectObject(&MemBitmap);//把位图选入内存DC
+
+	CBrush brush;
+	brush.CreateSolidBrush(RGB(0, 0, 0));//为内存DC创建画刷
+	MemDC.SelectObject(&brush);//将画刷选入内存DC
+	CBitmap* pOldBit = MemDC.SelectObject(&MemBitmap);
+
+	//先用背景色将位图清理干净，这里用黑色
+	MemDC.FillSolidRect(memRc.left, memRc.top, memRc.Width(), memRc.Height(), RGB(0,0,0));
+	////
 
 	CRect rect;
 	GetClientRect(&rect);
-	DrawXY(pDC, 660, 300, CPoint(50, 400), 5000, 250);
+	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 5000, 250);
 	//Draw_OverSpeedCurve(1600, 3800);
-	Draw_EB_Curve(3900, 0);
-	Draw_EB_Chufa_Curve(3900);
-	Draw_SB_Curve(4000);
+	Draw_EB_Curve(&MemDC,4000, 0);//紧急制动
+	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发
+	Draw_SB_Curve(&MemDC,4000);//常用制动
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
 //	Draw_Dashboard(CPoint(1100,300),160);
-	DrawInfoTable(pDC);
+	DrawInfoTable(&MemDC);
+
+
+	////
+	pDC->BitBlt(memRc.left, memRc.top, memRc.Width(), memRc.Height(), &MemDC, 0, 0, SRCCOPY);//将内存DC上的全部内容放入pDC,这样才会在显示窗口上显示出来
+	MemBitmap.DeleteObject();
+	MemDC.DeleteDC();
+	SetTimer(1, 10, NULL);
 }
 
 //坐标系绘制
@@ -59,7 +99,7 @@ void DMIView::DrawXY(CDC* pDC, int long_x, int long_y, CPoint start, double MaxX
 	this->start = start;
 	this->MaxX = MaxX;
 	this->MaxY = MaxY;
-	CPen newPen(BS_SOLID, 2, RGB(0, 0, 0));
+	CPen newPen(BS_SOLID, 2, RGB(255, 255, 255));
 	CPen* oldPen = pDC->SelectObject(&newPen);
 	CPoint EndX, EndY;
 	EndX.y = start.y;
@@ -86,11 +126,12 @@ void DMIView::DrawXY(CDC* pDC, int long_x, int long_y, CPoint start, double MaxX
 	//绘制X轴刻度线 绘制文字
 	CFont font;
 	font.CreatePointFont(70, _T("宋体"), NULL);
+	pDC->SetTextColor(RGB(255,255,255));
 	CFont* oldFont = pDC->SelectObject(&font);
 	double step = long_x / 10;//分成10刻度（不包括终点）
 	for (int i = 0; i < 11; i++)
 	{
-		CPen pen1(PS_DASHDOT, 1, RGB(0, 0, 0));
+		CPen pen1(PS_DASHDOT, 1, RGB(255, 255, 255));
 		CPen* oldpen = pDC->SelectObject(&pen1);
 		double step2 = MaxX / 10;
 		CString str;
@@ -107,7 +148,7 @@ void DMIView::DrawXY(CDC* pDC, int long_x, int long_y, CPoint start, double MaxX
 	step = long_y / 10;
 	for (int i = 0; i < 11; i++)
 	{
-		CPen pen1(PS_DASHDOT, 1, RGB(0, 0, 0));
+		CPen pen1(PS_DASHDOT, 1, RGB(255, 255, 255));
 		CPen* oldpen = pDC->SelectObject(&pen1);
 		double step2 = MaxY / 10;
 		CString str;
@@ -117,6 +158,23 @@ void DMIView::DrawXY(CDC* pDC, int long_x, int long_y, CPoint start, double MaxX
 		pDC->LineTo(start.x + long_x, start.y - step * i);
 		pDC->SelectObject(oldpen);
 	}
+	pDC->SelectObject(oldFont);
+	//X轴
+	pDC->MoveTo(start);
+	pDC->LineTo(EndX);
+	//Y轴
+	pDC->MoveTo(start);
+	pDC->LineTo(EndY);
+	//绘制X轴箭头
+	pDC->MoveTo(EndX);
+	pDC->LineTo(EndX.x - 10, EndX.y - 10);
+	pDC->MoveTo(EndX);
+	pDC->LineTo(EndX.x - 10, EndX.y + 10);
+	//绘制Y轴箭头
+	pDC->MoveTo(EndY);
+	pDC->LineTo(EndY.x - 10, EndY.y + 10);
+	pDC->MoveTo(EndY);
+	pDC->LineTo(EndY.x + 10, EndY.y + 10);
 	/*
 	//通过函数Draw_EB_Curve实现
 
@@ -246,6 +304,7 @@ double DMIView::EB_Distance(double v1, double v2)
 		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
 		S = S + s_new;
 	}
+	S += 100;//紧急制动安全余量
 	//保留6位小数
 	//return floor(S * 100000000.000f + 0.5) / 100000000.000f;
 	return S;
@@ -261,15 +320,15 @@ double DMIView::SB_Distance(double v1, double v2)
 		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
 		S = S + s_new;
 	}
-	S += 100;//常用制动距离
+	S += 100;//常用制动安全余量
 
 	double S_c;
 	S_c = (v1 * 2.3) / 3.6 + EB_Distance_chufa(v1, v2);
 	return S;
 }
-CPoint* DMIView::Draw_EB_Curve(double target, double target_v)
+CPoint* DMIView::Draw_EB_Curve(CDC *pDC,double target, double target_v)
 {
-	CDC* pDC = CWnd::GetDC();
+	
 	//计算n个点的函数值
 	double n = 200 - target_v;
 	vector<pair<double, double>> point;
@@ -312,9 +371,9 @@ CPoint* DMIView::Draw_EB_Curve(double target, double target_v)
 	pDC->SelectObject(oldPen);
 	return res;
 }
-CPoint* DMIView::Draw_EB_Curve(double target1, double target2, double target_v, double start_v)
+CPoint* DMIView::Draw_EB_Curve(CDC* pDC,double target1, double target2, double target_v, double start_v)
 {
-	CDC* pDC = CWnd::GetDC();
+	
 
 	vector<pair<double, double>> point;
 	double end_v = target_v;
@@ -374,9 +433,9 @@ CPoint* DMIView::Draw_EB_Curve(double target1, double target2, double target_v, 
 	pDC->SelectObject(oldPen);
 	return res;
 }
-void DMIView::Draw_SB_Curve(double target)
+void DMIView::Draw_SB_Curve(CDC* pDC,double target)
 {
-	CDC* pDC = CWnd::GetDC();
+	
 	//计算n个点的函数值
 	double n = 200;
 	vector<pair<double, double>> point;
@@ -425,9 +484,9 @@ double DMIView::EB_Distance_chufa(double v1, double v2)
 	double S = Sc + Sd + Sefg + EB_Distance(Vend, v2);
 	return S;
 }
-void DMIView::Draw_EB_Chufa_Curve(double target)
+void DMIView::Draw_EB_Chufa_Curve(CDC* pDC,double target)
 {
-	CDC* pDC = CWnd::GetDC();
+	
 	//计算n个点的函数值
 	double n = 200;
 	vector<pair<double, double>> point;
@@ -464,12 +523,16 @@ void DMIView::Draw_EB_Chufa_Curve(double target)
 	pDC->SelectObject(oldPen);
 }
 
-void DMIView::Draw_Dashboard(CPoint center, double r)
+void DMIView::Draw_Dashboard(CDC* pDC,CPoint center, double r)
 {
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 	double v;
-	v = 120;
-	CDC* pDC = CWnd::GetDC();
-	CPen newpen(PS_SOLID, 2, RGB(0, 0, 0));
+	v = pDoc->speed;
+	
+	CPen newpen(PS_SOLID, 2, RGB(255, 255, 255));
 	CPen* oldpen = pDC->SelectObject(&newpen);
 	CRect rec;
 	rec.left = center.x - r;
@@ -486,7 +549,7 @@ void DMIView::Draw_Dashboard(CPoint center, double r)
 	p1.y = center.y - r * sin((-35.0 / 180.0) * PI);
 	p2.x = center.x + r * cos((215.0 / 180.0) * PI);
 	p2.y = center.y - r * sin((215.0 / 180.0) * PI);
-	CPen newpen2(PS_DASHDOTDOT, 0.5, RGB(0, 0, 0));
+	CPen newpen2(PS_DASHDOTDOT, 0.5, RGB(255, 255, 255));
 	oldpen = pDC->SelectObject(&newpen2);
 	//刻度盘外沿
 	pDC->Arc(rec, p1, p2);
@@ -542,7 +605,7 @@ void DMIView::Draw_Dashboard(CPoint center, double r)
 
 }
 
-void DMIView::Draw_OverSpeedCurve(double position, double target)
+void DMIView::Draw_OverSpeedCurve(CDC* pDC,double position, double target)
 {
 	
 	//获取临时限速信息
@@ -556,7 +619,7 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 
 	if (ssp.size() == 0)
 	{
-		Draw_EB_Curve(target, 0);
+		Draw_EB_Curve(pDC,target, 0);
 		return;
 	}
 
@@ -575,7 +638,7 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 	point4.y = start.y - (ssp[1].first.first / MaxY) * long_y;
 
 
-	CDC* pDC = CWnd::GetDC();
+	
 	CPen pen1(PS_SOLID, 2, RGB(0, 255, 0));
 	CPen* oldpen1 = pDC->SelectObject(&pen1);
 	pDC->MoveTo(point1);
@@ -594,19 +657,19 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 	//限速区的超速防护速度小于限速值？
 	if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.first)
 	{
-		Draw_EB_Curve(target, 0);
+		Draw_EB_Curve(pDC,target, 0);
 
 	}
 	else if (EB_Distance(ssp_1.first.first, ssp_1.first.second) > ssp_1.second.second - ssp_1.second.first)
 	{
 		double a = EB_Distance(ssp_1.first.first, ssp_1.first.second);
 		double b = ssp_1.second.second - ssp_1.second.first;
-		Draw_EB_Curve(ssp_1.second.second, ssp_1.first.second);
+		Draw_EB_Curve(pDC,ssp_1.second.second, ssp_1.first.second);
 	}
 	else
 	{
-		Draw_EB_Curve(position, ssp_1.second.first, ssp_1.first.first, 200);
-		s_e = Draw_EB_Curve(ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
+		Draw_EB_Curve(pDC,position, ssp_1.second.first, ssp_1.first.first, 200);
+		s_e = Draw_EB_Curve(pDC,ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
 		vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
 	}
 
@@ -615,7 +678,7 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 	//限速区的超速防护速度小于限速值？
 	if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.first)
 	{
-		s_e = Draw_EB_Curve(ssp_1.second.first, target, 0.0, ssp_1.first.first);
+		s_e = Draw_EB_Curve(pDC,ssp_1.second.first, target, 0.0, ssp_1.first.first);
 		vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
 	}
 	else
@@ -623,14 +686,14 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 
 		if (EB_Distance(ssp_1.first.first, 0) > target - ssp_1.second.second)
 		{
-			s_e = Draw_EB_Curve(ssp_1.second.first, target, 0, ssp_1.first.first);
+			s_e = Draw_EB_Curve(pDC,ssp_1.second.first, target, 0, ssp_1.first.first);
 			vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
 		}
 		else
 		{
-			s_e = Draw_EB_Curve(ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
+			s_e = Draw_EB_Curve(pDC,ssp_1.second.first, ssp_1.second.second, ssp_1.first.second, ssp_1.first.first);
 			vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
-			s_e = Draw_EB_Curve(ssp_1.second.second, target, 0, ssp_1.first.second);
+			s_e = Draw_EB_Curve(pDC,ssp_1.second.second, target, 0, ssp_1.first.second);
 			vec.push_back(pair<CPoint, CPoint>(s_e[0], s_e[1]));
 		}
 
@@ -653,44 +716,166 @@ void DMIView::Draw_OverSpeedCurve(double position, double target)
 }
 void DMIView::DrawInfoTable(CDC *dc)
 {
-	CPen newpen(PS_SOLID, 2, RGB(0, 0, 0));
+	COverSpeedProDoc* pDoc =(COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	CPoint p;
+	p.x = 850;
+	p.y = 100;
+	int length = 900;
+	int width = length/3.0;
+	CPoint aPoint[5];
+	aPoint[0] = p;
+	aPoint[4] = p;
+	aPoint[1].x = p.x;
+	aPoint[1].y = p.y + width;
+	aPoint[2].x = p.x + length;
+	aPoint[2].y = p.y + width;
+	aPoint[3].x = p.x + length;
+	aPoint[3].y = p.y;
+
+	CPen newpen(PS_SOLID, 2, RGB(255, 255, 255));
 	CPen* oldpen = dc->SelectObject(&newpen);
-	POINT aPoint[5] = { 10,500,10,820,910,820,910,500,10,500 };
+	//POINT aPoint[5] = { 10,500,10,820,910,820,910,500,10,500 };
 	dc->Polyline(aPoint, 5);
-	dc->MoveTo(760, 500);
-	dc->LineTo(760, 820);
+	
+	CPoint cow[8];
+	cow[0].x = p.x + length / 3.0;
+	cow[0].y = p.y;
+	cow[1].x = p.x + length / 3.0;
+	cow[1].y = p.y + width;
+
+	cow[2].x = p.x + length / 2.0;
+	cow[2].y = p.y;
+	cow[3].x = p.x + length / 2.0;
+	cow[3].y = p.y + width;
+
+	cow[4].x = p.x + ((double)length * 2) / 3.0;
+	cow[4].y = p.y;
+	cow[5].x = p.x + ((double)length * 2) / 3.0;
+	cow[5].y = p.y + width;
+
+	cow[6].x = p.x + ((double)length * 5) / 6.0;
+	cow[6].y = p.y;
+	cow[7].x = p.x + ((double)length * 5) / 6.0;
+	cow[7].y = p.y + width;
+
+	for (int i = 0; i < 8; )
+	{
+		dc->MoveTo(cow[i]);
+		dc->LineTo(cow[i + 1]);
+		i = i + 2;
+	}
+
+	
+	/*
 	dc->MoveTo(310, 500);
 	dc->LineTo(310, 820);
 	dc->MoveTo(460, 500);
 	dc->LineTo(460, 820);
 	dc->MoveTo(610, 500);
-	dc->LineTo(610, 820);//列
+	dc->LineTo(610, 820);//列	
+	*/
+
+
+	CPoint row[6];
+
+	row[0].x = cow[0].x;
+	row[0].y = p.y + width / 4.0;
+	row[1].x = p.x + length;
+	row[1].y = p.y + width / 4.0;
+
+	row[2].x = cow[0].x;
+	row[2].y = p.y + (2 * (double)width) / 4.0;
+	row[3].x = p.x + length;
+	row[3].y = p.y + (2 * (double)width) / 4.0;
+
+	row[4].x = p.x;
+	row[4].y = p.y + ((double)width * 3) / 4.0;
+	row[5].x = p.x + length;
+	row[5].y = p.y + ((double)width * 3) / 4.0;
+
+	for (int i = 0; i < 6; )
+	{
+		dc->MoveTo(row[i]);
+		dc->LineTo(row[i + 1]);
+		i = i + 2;
+	}
+
+	dc->MoveTo(p.x, p.y + ((double)width * 7) / 8.0);
+	dc->LineTo(cow[0].x, p.y + ((double)width * 7) / 8.0);
+	
+	dc->MoveTo(p.x + length / 6, p.y + ((double)width * 6) / 8.0);
+	dc->LineTo(p.x + length / 6, p.y + width);
+	
+	CPoint center;
+	center.x = p.x + length / 6;
+	center.y = p.y + (7 * width) / 16;
+	Draw_Dashboard(dc,center, length / 7);
+	
+	/*
 	dc->MoveTo(310, 580);
 	dc->LineTo(910, 580);
 	dc->MoveTo(310, 660);
 	dc->LineTo(910, 660);
 	dc->MoveTo(10, 740);
 	dc->LineTo(910, 740);//行
+
+
 	dc->MoveTo(160, 740);
 	dc->LineTo(160, 820);
 	dc->MoveTo(10, 780);
 	dc->LineTo(310, 780);//小格
-
+	*/
 	CFont font;
-	font.CreatePointFont(100, TEXT("宋体"));
+	font.CreatePointFont(150, TEXT("宋体"));
 	dc->SelectObject(&font);
-	dc->TextOut(345, 530, TEXT("当前速度"));
-	dc->TextOut(345, 610, TEXT("启始速度"));
-	dc->TextOut(345, 690, TEXT("目标速度"));
-	dc->TextOut(345, 770, TEXT("运行时间"));
-	dc->TextOut(645, 530, TEXT("当前位置"));
-	dc->TextOut(645, 610, TEXT("启始位置"));
-	dc->TextOut(645, 690, TEXT("目标位置"));
-	dc->TextOut(645, 770, TEXT("运行距离"));
-	dc->TextOut(45, 750, TEXT("列车号"));
-	dc->TextOut(45, 790, TEXT("司机号"));
+
+	dc->TextOut(cow[0].x+30, p.y+((double)width*3)/32.0, TEXT("当前速度"));
+	CString strSpeed;
+	strSpeed.Format("%d", pDoc->speed);
+	dc->TextOut(cow[0].x + 30+length/6.0, p.y + ((double)width * 3) / 32.0, strSpeed);
+
+
+	dc->TextOut(cow[0].x + 30+length/3.0, p.y + ((double)width * 3) / 32.0, TEXT("当前位置"));
+	CString strPosition = "2000";
+	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0, strPosition);
+
+
+	dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0+width/4.0, TEXT("目标速度"));
+	CString strTargetSpeed = "0";
+	dc->TextOut(cow[0].x + 30+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0,strTargetSpeed);
+
+	dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0+width/4.0, TEXT("目标位置"));
+	CString strTargetPosition = "4000";
+	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0, strTargetPosition);
+
+	//dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0 + width / 2.0, TEXT("目标速度"));
+
+
+	//dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0 + width / 2.0, TEXT("目标位置"));
+
+
+	//dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0 + ((double)width * 3) / 4.0, TEXT("运行时间"));
+
+
+	//dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0 + ((double)width * 3) / 4.0, TEXT("运行距离"));
+	
+
+
+	dc->TextOut(p.x+50, p.y+((double)width*25)/32, TEXT("列车号"));
+	CString strTrainNumber = "NULL";
+	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32, strTrainNumber);
+
+	dc->TextOut(p.x + 50, p.y + ((double)width * 25) / 32+width/8.0, TEXT("司机号"));
+	CString strDriverNumber = "NULL";
+	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32 + width / 8.0, strDriverNumber);
+
 	dc->SelectObject(oldpen);
 }
+
 // DMIView 诊断
 
 #ifdef _DEBUG
@@ -709,3 +894,18 @@ void DMIView::Dump(CDumpContext& dc) const
 
 
 // DMIView 消息处理程序
+
+
+void DMIView::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+	if (pDoc->speed < 250)
+		pDoc->speed++;
+
+	Invalidate(false);
+	CView::OnTimer(nIDEvent);
+}

@@ -57,7 +57,7 @@ void COverSpeedProView::OnDraw(CDC* /*pDC*/)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-
+	
 	// TODO: 在此处为本机数据添加绘制代码
 }
 

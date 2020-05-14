@@ -11,7 +11,10 @@ class COverSpeedProDoc : public CDocument
 protected: // 仅从序列化创建
 	COverSpeedProDoc() noexcept;
 	DECLARE_DYNCREATE(COverSpeedProDoc)
-
+//成员
+public:
+	int speed = 0;//列车速度
+	int position = 0;//列车位置
 // 特性
 public:
 

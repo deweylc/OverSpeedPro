@@ -30,6 +30,8 @@ END_MESSAGE_MAP()
 
 COverSpeedProDoc::COverSpeedProDoc() noexcept
 {
+	speed = 0;
+	position = 2000;
 	// TODO: 在此添加一次性构造代码
 
 }

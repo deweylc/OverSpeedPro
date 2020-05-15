@@ -11,7 +11,7 @@
 
 IMPLEMENT_DYNCREATE(StationYardView, CView)
 int Train = 1;//用于确定列车是否显示
-int Train1 = 0;//用于确定列车是否出发
+int Train1 = 1;//用于确定列车是否出发
 /*翻墙成功*/
 // C电路图View
 int TrBgn_x = 100, TrBgn_y = 75;//列车出发点的坐标
@@ -174,7 +174,7 @@ void StationYardView::Dump(CDumpContext& dc) const
 void StationYardView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	Invalidate(false);
+	//Invalidate(false);
 	CView::OnTimer(nIDEvent);
 }
 

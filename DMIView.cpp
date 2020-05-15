@@ -10,7 +10,7 @@
 #include<math.h>
 #include "framework.h"
 #include<string>
-
+#include"MainFrm.h"
 
 
 // DMIView
@@ -906,6 +906,12 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 	if (pDoc->speed < 250)
 		pDoc->speed++;
 
+
+
+	//实现DMI和站场图的计时器同步
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	StationYardView* pStation = (StationYardView*)pFrame->pStation;
+	pStation->Invalidate(false);
 	Invalidate(false);
 	CView::OnTimer(nIDEvent);
 }

@@ -10,7 +10,6 @@
 #include<math.h>
 #include "framework.h"
 #include<string>
-<<<<<<< HEAD
 #include"MainFrm.h"
 #include<algorithm>
 

@@ -15,6 +15,9 @@
 =======
 #include"MainFrm.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 5c70513... update EB Curve
+=======
 >>>>>>> parent of 5c70513... update EB Curve
 =======
 >>>>>>> parent of 5c70513... update EB Curve
@@ -914,7 +917,10 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 		pDoc->speed++;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 5c70513... update EB Curve
 =======
 >>>>>>> parent of 5c70513... update EB Curve
 

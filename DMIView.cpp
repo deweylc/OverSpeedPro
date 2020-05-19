@@ -10,7 +10,11 @@
 #include<math.h>
 #include "framework.h"
 #include<string>
+<<<<<<< HEAD
 
+=======
+#include"MainFrm.h"
+>>>>>>> parent of 5c70513... update EB Curve
 
 
 // DMIView
@@ -905,6 +909,11 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 		return;
 	if (pDoc->speed < 250)
 		pDoc->speed++;
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> parent of 5c70513... update EB Curve
 
 	Invalidate(false);
 	CView::OnTimer(nIDEvent);

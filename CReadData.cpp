@@ -32,6 +32,8 @@ void CReadData::ReadSignal()
 		CString id;
 		int ID;
 		CString Name;
+		CString  dir;
+		int Dir;
 		CString attr;
 		int Attr;
 		CString x1;
@@ -53,7 +55,9 @@ void CReadData::ReadSignal()
 		//ID = var.intVal; ;
 		var = m_pRecordset->GetCollect("Ãû³Æ");
 		Name = var.bstrVal;
-		/*name = atoi(Name);*/
+		var = m_pRecordset->GetCollect("·½Ïò");
+		dir = var.bstrVal;
+		Dir = atoi(dir);
 		var = m_pRecordset->GetCollect("Attr");
 		attr = var.bstrVal;
 		Attr = atoi(attr);
@@ -79,7 +83,7 @@ void CReadData::ReadSignal()
 		color = var.bstrVal;
 		Color = atoi(color);
 
-		m_csignal[signal_count++].fuzhi(ID, Name, Attr, X1, Y1, ProBS, NextSig, FormerSig, Color);
+		m_csignal[signal_count++].fuzhi(ID, Name, Dir, Attr, X1, Y1, ProBS, NextSig, FormerSig, Color);
 		m_pRecordset->MoveNext();
 	}
 	m_pRecordset->MoveFirst();

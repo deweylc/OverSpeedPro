@@ -15,8 +15,8 @@ public:
 
 	int dubiaojishu = 0;
 
-	CSignal m_csignal[15];
-	CBlockSec m_cblocksec[15];
+	CSignal m_csignal[20];
+	CBlockSec m_cblocksec[20];
 	void ReadSignal();
 	void ReadBS();
 	

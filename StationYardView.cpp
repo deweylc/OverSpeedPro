@@ -7,14 +7,16 @@
 #include"CReadData.h"
 #include"CSignal.h"
 #include"OverSpeedProDoc.h"
+#include"StationYardDoc.h"
+//#include"CScrollView.h"
 // StationYardView
 
-IMPLEMENT_DYNCREATE(StationYardView, CView)
+IMPLEMENT_DYNCREATE(StationYardView, CScrollView)
 int Train = 1;//用于确定列车是否显示
 int Train1 = 1;//用于确定列车是否出发
 /*翻墙成功*/
 // C电路图View
-int TrBgn_x = 100, TrBgn_y = 75;//列车出发点的坐标
+int TrBgn_x = 0, TrBgn_y = 75;//列车出发点的坐标
 int TrEnd_x = 1000, TrEnd_y = TrBgn_y;//列车到达点的坐标
 StationYardView::StationYardView()
 {
@@ -49,7 +51,7 @@ StationYardView::~StationYardView()
 
 }
 
-BEGIN_MESSAGE_MAP(StationYardView, CView)
+BEGIN_MESSAGE_MAP(StationYardView, CScrollView)
 	ON_WM_TIMER()
 	//ON_WM_CREATE()
 	//ON_BN_CLICKED(IDC_BUTTON1, &StationYardView::On01)
@@ -71,17 +73,10 @@ void StationYardView::OnDraw(CDC* pDC)
 
 	dcMem.CreateCompatibleDC(pDC); //依附窗口DC创建兼容内存DC
 	//创建兼容位图(必须用pDC创建，否则画出的图形变成黑色)
-	bmp.CreateCompatibleBitmap(pDC, rc.Width(), rc.Height());
+	bmp.CreateCompatibleBitmap(pDC, rc.Width()*2, rc.Height());
 	CBitmap* pOldBit = dcMem.SelectObject(&bmp);
 	//按原来背景填充客户区，不然会是黑色
 	dcMem.FillSolidRect(rc, RGB(0, 0, 0));
-
-
-	//font.CreatePointFont(500, _T("宋体"));
-	//CFont* oldfont = pDC->SelectObject(&font);
-	////pDC->TextOutW(1, 1, _T("站场图"));
-	//pDC->SelectObject(oldfont);
-
 
 	//下面很简单的实现了一下列车移动的功能
 	if ((Train == 1) && (Train1 == 0))
@@ -93,10 +88,6 @@ void StationYardView::OnDraw(CDC* pDC)
 		dcMem.Ellipse(TrBgn_x + 2, TrBgn_y + 15, TrBgn_x + 10, TrBgn_y + 23);
 		dcMem.Ellipse(TrBgn_x + 20, TrBgn_y + 15, TrBgn_x + 28, TrBgn_y + 23);/////////模拟的列车的形状
 
-		//DLSearch();
-		//XLXG();
-
-
 	}
 	else if ((Train == 1) && (Train1 == 1))
 	{
@@ -107,15 +98,9 @@ void StationYardView::OnDraw(CDC* pDC)
 		dcMem.Ellipse(TrBgn_x + 2, TrBgn_y + 15, TrBgn_x + 10, TrBgn_y + 23);
 		dcMem.Ellipse(TrBgn_x + 20, TrBgn_y + 15, TrBgn_x + 28, TrBgn_y + 23);/////////模拟的列车的形状
 		TrBgn_x = TrBgn_x + 5;
-		//DLSearch();
-		//XLXG();
 		if (TrBgn_x > TrEnd_x)
 		{
 			Train1 = 0;
-		}
-		if (TrBgn_x > 600)
-		{
-			Train1 = 1;
 		}
 	}
 
@@ -123,26 +108,26 @@ void StationYardView::OnDraw(CDC* pDC)
 	CPen pen;
 	pen.CreatePen(PS_SOLID, 4, RGB(190, 190, 190));
 	dcMem.SelectObject(&pen);
-	dcMem.MoveTo(1230, 125);
-	dcMem.LineTo(1260, 80);
-	dcMem.MoveTo(1400, 80);
-	dcMem.LineTo(1260, 80);
+	dcMem.MoveTo(1770, 125);
+	dcMem.LineTo(1800, 80);
+	dcMem.MoveTo(1800, 80);
+	dcMem.LineTo(1885, 80);
 	pen.DeleteObject();
 
 
 
-for (int i = 0; i < 15; i++)
+for (int i = 0; i < 20; i++)
 {
 	SetSigClr(RD.m_csignal[i].ID);
 	RD.m_csignal[i].DrawSignal(&dcMem);
 }
-for (int i = 0; i < 15; i++)
+for (int i = 0; i < 20; i++)
 {
 	SetState();
 	RD.m_cblocksec[i].DrawBS(&dcMem);
 }
 
-pDC->BitBlt(0, 0, rc.Width(), rc.Height(), &dcMem, 0, 0, SRCCOPY);
+pDC->BitBlt(0, 0, rc.Width()*2, rc.Height(), &dcMem, 0, 0, SRCCOPY);
 
 //将内存DC上的图象拷贝到前台
 	//绘图完成后的清理
@@ -174,41 +159,59 @@ void StationYardView::Dump(CDumpContext& dc) const
 void StationYardView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	//Invalidate(false);
-	CView::OnTimer(nIDEvent);
+	Invalidate(false);
+	CScrollView::OnTimer(nIDEvent);
 }
 
 
-void StationYardView::OnInitialUpdate()
+void StationYardView::OnInitialUpdate()//
 {
-	CView::OnInitialUpdate();
+	CScrollView::OnInitialUpdate();
+	CClientDC dc(this);
+	CSize sizeTotal;
+	// TODO: 计算此视图的合计大小
+	sizeTotal.cx = sizeTotal.cy = 2500;
+	SetScrollSizes(MM_TEXT, sizeTotal);
+	//CView::OnInitialUpdate();
 	SetTimer(1, 100, NULL);
+		
 	// TODO: 在此添加专用代码和/或调用基类
 }
 
 void StationYardView::SetSigClr(int SigID)
 {
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		if (SigID == RD.m_csignal[i].ID)
 		{
-			if (GetState(RD.m_csignal[i].ProBS) == 2)
-				RD.m_csignal[i].Color = 4;
-			else if(GetSigClr(RD.m_csignal[i].NextSig)==1)
-				RD.m_csignal[i].Color = 1;
-			else if (GetSigClr(RD.m_csignal[i].NextSig) == 2)
-				RD.m_csignal[i].Color = 1;
-			else if (GetSigClr(RD.m_csignal[i].NextSig) == 3)
-				RD.m_csignal[i].Color = 2;
-			else if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
-				RD.m_csignal[i].Color = 3;
+			if (RD.m_csignal[i].Attr == 1)
+			{
+				if (GetState(RD.m_csignal[i].ProBS) == 3)
+					RD.m_csignal[i].Color = 4;
+				else if (GetState(RD.m_csignal[i].ProBS) == 2)
+					RD.m_csignal[i].Color = 4;
+				else if (GetSigClr(RD.m_csignal[i].NextSig) == 1)
+					RD.m_csignal[i].Color = 1;
+				else if (GetSigClr(RD.m_csignal[i].NextSig) == 2)
+					RD.m_csignal[i].Color = 1;
+				else if (GetSigClr(RD.m_csignal[i].NextSig) == 3)
+					RD.m_csignal[i].Color = 2;
+				else if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
+					RD.m_csignal[i].Color = 3;
+			}
+			else if (RD.m_csignal[i].Attr == 3)
+			{
+				if ((TrBgn_x + 30) > RD.m_csignal[i].x1)
+					RD.m_csignal[i].Color = 4;
+			}
+			
 		}
 	}
 }
 
 int StationYardView::GetSigClr(int SigID)
 {
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		if (SigID == RD.m_csignal[i].ID)
 		{
@@ -222,9 +225,11 @@ int StationYardView::GetSigClr(int SigID)
 
 void StationYardView::SetState()
 {
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 20; i++)
 	{
-		if ((RD.m_cblocksec[i].x1 > (TrBgn_x + 30))|| (RD.m_cblocksec[i].x2 < TrBgn_x))
+		if ((RD.m_cblocksec[i].State == 3))
+			RD.m_cblocksec[i].State = 3;
+		else if ((RD.m_cblocksec[i].x1 > (TrBgn_x + 30))|| (RD.m_cblocksec[i].x2 < TrBgn_x))
 			RD.m_cblocksec[i].State = 1;
 		else
 			RD.m_cblocksec[i].State = 2;
@@ -233,7 +238,7 @@ void StationYardView::SetState()
 
 int StationYardView::GetState(int BSID)
 {
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		if (BSID == RD.m_cblocksec[i].ID)
 		{
@@ -244,19 +249,3 @@ int StationYardView::GetState(int BSID)
 }
 
 
-//int StationYardView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-//{
-//	if (CView::OnCreate(lpCreateStruct) == -1)
-//		return -1;
-//	m_button1.Create(_T("列车出发"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(10, 10, 110, 30), this, IDC_BUTTON1);
-//	m_button2.Create(_T("列车复原"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(150, 10, 250, 30), this, IDC_BUTTON2);
-//	// TODO:  在此添加您专用的创建代码
-//
-//	return 0;
-//}
-//
-//
-//void StationYardView::On01()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//}

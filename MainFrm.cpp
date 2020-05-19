@@ -110,8 +110,6 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		return false;
 	if (!m_wndSplitter.CreateView(1, 0, RUNTIME_CLASS(DMIView), CSize(rc.Width(), rc.Height() / 2), pContext))
 		return false;
-	pDMI = (DMIView*)m_wndSplitter.GetPane(1, 0);
-	pStation = (StationYardView*)m_wndSplitter.GetPane(0, 0);
 	return true;
 	//return CFrameWnd::OnCreateClient(lpcs, pContext);
 }

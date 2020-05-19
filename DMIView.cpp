@@ -10,8 +10,8 @@
 #include<math.h>
 #include "framework.h"
 #include<string>
-
-
+#include"MainFrm.h"
+#include<algorithm>
 
 // DMIView
 using namespace std;
@@ -46,7 +46,10 @@ BOOL DMIView::PreCreateWindow(CREATESTRUCT& cs)
 
 void DMIView::OnDraw(CDC* pDC)
 {
-	CDocument* pDoc = GetDocument();
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 	// TODO:  在此添加绘制代码
 	
 	//双缓冲绘图
@@ -69,13 +72,14 @@ void DMIView::OnDraw(CDC* pDC)
 	MemDC.FillSolidRect(memRc.left, memRc.top, memRc.Width(), memRc.Height(), RGB(0,0,0));
 	////
 
-	CRect rect;
-	GetClientRect(&rect);
-	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 5000, 250);
+
+	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 15000, 250);
 	//Draw_OverSpeedCurve(1600, 3800);
-	Draw_EB_Curve(&MemDC,4000, 0);//紧急制动
+	//Draw_EB_Curve(&MemDC,4000, 0);//紧急制动
 	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发
-	Draw_SB_Curve(&MemDC,4000);//常用制动
+	//Draw_SB_Curve(&MemDC,4000);//常用制动
+	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
+	Draw_EB_Curve_new(&MemDC, pDoc->position+3000, pDoc->position);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -87,7 +91,7 @@ void DMIView::OnDraw(CDC* pDC)
 	pDC->BitBlt(memRc.left, memRc.top, memRc.Width(), memRc.Height(), &MemDC, 0, 0, SRCCOPY);//将内存DC上的全部内容放入pDC,这样才会在显示窗口上显示出来
 	MemBitmap.DeleteObject();
 	MemDC.DeleteDC();
-	SetTimer(1, 10, NULL);
+	SetTimer(1, 50, NULL);
 }
 
 //坐标系绘制
@@ -304,7 +308,7 @@ double DMIView::EB_Distance(double v1, double v2)
 		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
 		S = S + s_new;
 	}
-	S += 100;//紧急制动安全余量
+	
 	//保留6位小数
 	//return floor(S * 100000000.000f + 0.5) / 100000000.000f;
 	return S;
@@ -840,7 +844,8 @@ void DMIView::DrawInfoTable(CDC *dc)
 
 
 	dc->TextOut(cow[0].x + 30+length/3.0, p.y + ((double)width * 3) / 32.0, TEXT("当前位置"));
-	CString strPosition = "2000";
+	CString strPosition ;
+	strPosition.Format("%d", pDoc->position);
 	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0, strPosition);
 
 
@@ -849,7 +854,8 @@ void DMIView::DrawInfoTable(CDC *dc)
 	dc->TextOut(cow[0].x + 30+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0,strTargetSpeed);
 
 	dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0+width/4.0, TEXT("目标位置"));
-	CString strTargetPosition = "4000";
+	CString strTargetPosition;
+	strTargetPosition.Format("%d", pDoc->position + 3000);
 	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0, strTargetPosition);
 
 	//dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0 + width / 2.0, TEXT("目标速度"));
@@ -875,7 +881,85 @@ void DMIView::DrawInfoTable(CDC *dc)
 
 	dc->SelectObject(oldpen);
 }
+double DMIView::GetLimitSpeed(double position)
+{
+	double limitv = 200;
+	//获得临时限速信息
+	if (position >= (3000) && position <= (3500))//误差补偿 车尾保持
+		return 100;
+	if (position >= (3500) && position <= (4000))
+		return 150;
+	return limitv;
+}
 
+void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
+{
+	//计算n个点的函数值
+	double n = 200;
+	double s = 0;//长度
+	vector<pair<double, double>> point;
+	int i = 0;
+	while (true)
+	{
+		if (target - s <= position)
+			break;
+		
+		if (point.size() == 0)
+		{
+			s += EB_Distance(1, 0);
+			point.push_back(pair<double,double>(1, target - EB_Distance(1, 0)-100));//100为安全余量	
+		}
+		else
+		{
+			double v = point.back().first+1;
+			double pos = point.back().second;
+			double step = EB_Distance(v, v - 1);
+			s += EB_Distance(v, v - 1);
+			point.push_back(pair<double, double>(min(GetLimitSpeed(pos-step),v), pos - step));
+		}
+	}
+	/*
+	for (double i = 0; i < n; i++)
+	{
+
+		double step3 = 1;//速度步长
+		double v = i * step3;
+		double pos=target-EB_Distance()
+		point.push_back(pair<double, double>(i * step3, target - EB_Distance_chufa(i, 0)));
+	}
+	point.push_back(pair<double, double>(200, target - EB_Distance_chufa(200, 0) - 300.0));//200km/h制动距离上预留300m的顶棚速度防护区域
+	*/
+
+
+
+
+
+
+
+	//vector<pair<double, double>> point = EB_Curve(3000);//目标点为3000m
+	//函数值与坐标转换
+	CPoint* p = new CPoint[point.size()];
+	for (int i = 0; i < point.size(); i++)
+	{
+		double x = (point[i].second / MaxX) * long_x;
+		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
+		p[i].x = x + start.x;
+		p[i].y = start.y - y;
+	}
+	CPen newPen2(BS_SOLID, 2, RGB(0, 0, 255));
+	CPen* oldPen = pDC->SelectObject(&newPen2);
+	//将点集point连接起来
+	//Draw_X(pDC, p[0]);图上标点
+	pDC->MoveTo(p[0]);
+	for (int i = 1; i < point.size(); i++)
+	{
+		//Draw_X(pDC, p[i]);
+		pDC->LineTo(p[i]);
+		pDC->MoveTo(p[i]);
+	}
+	pDC->LineTo(p[point.size() - 1]);
+	pDC->SelectObject(oldPen);
+}
 // DMIView 诊断
 
 #ifdef _DEBUG
@@ -905,7 +989,15 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 		return;
 	if (pDoc->speed < 250)
 		pDoc->speed++;
+	if (pDoc->position < 7000)
+		pDoc->position+=20;
 
+
+
+	//实现DMI和站场图的计时器同步
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	StationYardView* pStation = (StationYardView*)pFrame->pStation;
+	pStation->Invalidate(false);
 	Invalidate(false);
 	CView::OnTimer(nIDEvent);
 }

@@ -31,7 +31,7 @@ public:
 	virtual double EB_Distance_chufa(double v1, double v2);//触发曲线，考虑安全制动模型
 	virtual CPoint* Draw_EB_Curve(CDC *pDC,double target, double target_v);
 	CPoint* Draw_EB_Curve(CDC* pDC,double target1, double target2, double target_v, double start_v);
-	//根据目标点绘制紧急制动曲线
+	//根据目标点绘制紧急制动曲线 target1 列车位置 target2 目标位置 target_v 出口速度 start_v 入口速度 
 
 	virtual void Draw_EB_Chufa_Curve(CDC* pDC,double target);//绘制紧急制动触发曲线
 	virtual void Draw_Dashboard(CDC* pDC,CPoint center, double r);//根据当前速度绘制仪表盘
@@ -39,6 +39,9 @@ public:
 	virtual double SB_Distance(double v1, double v2);//常用制动 制动距离 安全余量100m
 	virtual void Draw_OverSpeedCurve(CDC* pDC,double position, double target);
 	virtual void DrawInfoTable(CDC* pDC);//绘制列车信息表
+
+	virtual double GetLimitSpeed(double position);//获得某个位置的固定限速
+	virtual void Draw_EB_Curve_new(CDC* pDC, double target,  double position);//设计了新的紧急制动曲线的计算方法
 	
 #ifdef _DEBUG
 	virtual void AssertValid() const;

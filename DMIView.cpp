@@ -73,7 +73,7 @@ void DMIView::OnDraw(CDC* pDC)
 	////
 
 
-	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 10000, 250);
+	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 15000, 250);
 	//Draw_OverSpeedCurve(1600, 3800);
 	//Draw_EB_Curve(&MemDC,4000, 0);//紧急制动
 	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发

@@ -15,6 +15,7 @@ protected: // 仅从序列化创建
 public:
 	int speed = 0;//列车速度
 	int position = 0;//列车位置
+	int Train_Length;//列车长度
 // 特性
 public:
 

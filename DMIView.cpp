@@ -79,7 +79,7 @@ void DMIView::OnDraw(CDC* pDC)
 	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发
 	//Draw_SB_Curve(&MemDC,4000);//常用制动
 	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
-	Draw_EB_Curve_new(&MemDC, pDoc->position+3000, pDoc->position);
+	Draw_EB_Curve_new(&MemDC, 10000, pDoc->position);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -894,6 +894,10 @@ double DMIView::GetLimitSpeed(double position)
 
 void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 {
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 	//计算n个点的函数值
 	double n = 200;
 	double s = 0;//长度
@@ -918,25 +922,11 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 			point.push_back(pair<double, double>(min(GetLimitSpeed(pos-step),v), pos - step));
 		}
 	}
-	/*
-	for (double i = 0; i < n; i++)
-	{
+	if (point.size() == 0)
+		pDoc->speed = 0;
+	else
+		pDoc->speed = point.back().first;
 
-		double step3 = 1;//速度步长
-		double v = i * step3;
-		double pos=target-EB_Distance()
-		point.push_back(pair<double, double>(i * step3, target - EB_Distance_chufa(i, 0)));
-	}
-	point.push_back(pair<double, double>(200, target - EB_Distance_chufa(200, 0) - 300.0));//200km/h制动距离上预留300m的顶棚速度防护区域
-	*/
-
-
-
-
-
-
-
-	//vector<pair<double, double>> point = EB_Curve(3000);//目标点为3000m
 	//函数值与坐标转换
 	CPoint* p = new CPoint[point.size()];
 	for (int i = 0; i < point.size(); i++)
@@ -987,10 +977,9 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-	if (pDoc->speed < 250)
-		pDoc->speed++;
-	if (pDoc->position < 7000)
-		pDoc->position+=20;
+	
+	if (pDoc->position < 10000)
+		pDoc->position+=((double)pDoc->speed/3.6);
 
 
 

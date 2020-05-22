@@ -16,6 +16,7 @@ public:
 	int speed = 0;//列车速度
 	int position = 0;//列车位置
 	int Train_Length;//列车长度
+	int target=0;//目标位置
 // 特性
 public:
 

@@ -13,7 +13,7 @@
 
 IMPLEMENT_DYNCREATE(StationYardView, CScrollView)
 int Train = 1;//用于确定列车是否显示
-int Train1 = 1;//用于确定列车是否出发
+int Train1 = 0;//用于确定列车是否出发
 /*翻墙成功*/
 // C电路图View
 int TrBgn_x = 0, TrBgn_y = 75;//列车出发点的坐标

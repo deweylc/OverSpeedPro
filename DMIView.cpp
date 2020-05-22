@@ -79,7 +79,8 @@ void DMIView::OnDraw(CDC* pDC)
 	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发
 	//Draw_SB_Curve(&MemDC,4000);//常用制动
 	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
-	Draw_EB_Curve_new(&MemDC, 10000, pDoc->position);
+
+	Draw_EB_Curve_new(&MemDC, pDoc->target, pDoc->position);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -855,7 +856,7 @@ void DMIView::DrawInfoTable(CDC *dc)
 
 	dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0+width/4.0, TEXT("目标位置"));
 	CString strTargetPosition;
-	strTargetPosition.Format("%d", pDoc->position + 3000);
+	strTargetPosition.Format("%d", pDoc->target);
 	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0, strTargetPosition);
 
 	//dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0 + width / 2.0, TEXT("目标速度"));

@@ -53,9 +53,9 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
-    "#include ""res\\OverSpeedPro.rc2""  // 闂?Microsoft Visual C++ 缂傛牞绶惃鍕カ濠?\n"
-    "#include ""l.CHS\\afxres.rc""      // 閺嶅洤鍣紒鍕\r\n"
-    "#include ""l.CHS\\afxprint.rc""    // 閹垫挸宓?閹垫挸宓冩０鍕潔鐠у嫭绨?\n"
+    "#include ""res\\OverSpeedPro.rc2""  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐褰掓偋閻愬灚顐芥い鎰堕檮閸庡秹鏌涢弴銊ユ灓闁靛牜鍋呯换?\n"
+    "#include ""l.CHS\\afxres.rc""      // 闂備礁鎼粔鏉懨洪妶澶婇棷妞ゆ牗绮庣壕濂告煕閺囥劋绨兼い?\n"
+    "#include ""l.CHS\\afxprint.rc""    // 闂備胶鎳撻悘姘跺箰缁嬭法鏆?闂備胶鎳撻悘姘跺箰缁嬭法鏆ら柛鎰ㄦ櫔缁憋綁鏌涢弴銊ユ珮婵炲吋妫冮幃纭咁槻閻庢凹鍘鹃懞?\n"
     "#endif\r\n"
     "\0"
 END
@@ -141,6 +141,15 @@ BEGIN
     POPUP "帮助(&H)"
     BEGIN
         MENUITEM "关于 OverSpeedPro(&A)...",      ID_APP_ABOUT
+    END
+END
+
+IDR_MENU4 MENU
+BEGIN
+    POPUP "1"
+    BEGIN
+        MENUITEM "设置故障",                        ID_1_32772
+        MENUITEM "解除故障",                        ID_1_32773
     END
 END
 
@@ -485,9 +494,9 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
-#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傛牞绶惃鍕カ濠?
-#include "l.CHS\afxres.rc"      // 閺嶅洤鍣紒鍕
-#include "l.CHS\afxprint.rc"    // 閹垫挸宓?閹垫挸宓冩０鍕潔鐠у嫭绨?
+#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傚倸鍊归悧鐐垫椤愶附鍎嶉柛鏇ㄥ枤閵堫偅绻?
+#include "l.CHS\afxres.rc"      // 闂佸搫绉村ú銈夊闯椤栨粎纾奸柛鏇ㄤ簼椤?
+#include "l.CHS\afxprint.rc"    // 闂佺懓鐏氶幐绋跨暤?闂佺懓鐏氶幐绋跨暤閸愨晪绱ｉ柛鏇ㄥ櫘濞兼棃鎮硅鐎氼厾鑺?
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

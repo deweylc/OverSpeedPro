@@ -29,13 +29,20 @@ protected:
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual void OnInitialUpdate();
+	int FindBS(int x);//根据列车当前位置确定列车所处闭塞分区，并返回该闭塞分区的防护信号机的ID
+	int DisCount(int x);//根据列车当前所处闭塞分区的防护信号机的ID,计算行车目标点的距离
+
 	//StationYardDoc* GetDocument();
 public:
 	void SetSigClr(int SigID);//设置信号机的颜色
 	int GetSigClr(int SigID);//获得信号机的颜色
 	void SetState();//设置闭塞分区的状态
 	int GetState(int BSID);//获得闭塞分区的状态
-	
+	int GetSigX(int SigID);
+	afx_msg void On132772();
+	afx_msg void On132773();
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+//	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 };
 
 

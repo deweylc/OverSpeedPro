@@ -872,12 +872,12 @@ void DMIView::DrawInfoTable(CDC *dc)
 	
 
 
-	dc->TextOut(p.x+50, p.y+((double)width*25)/32, TEXT("列车号"));
-	CString strTrainNumber = "NULL";
+	dc->TextOut(p.x+50, p.y+((double)width*25)/32, TEXT("当前位置"));//列车号
+	CString strTrainNumber = strPosition;
 	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32, strTrainNumber);
 
-	dc->TextOut(p.x + 50, p.y + ((double)width * 25) / 32+width/8.0, TEXT("司机号"));
-	CString strDriverNumber = "NULL";
+	dc->TextOut(p.x + 50, p.y + ((double)width * 25) / 32+width/8.0, TEXT("目标位置"));//车次号
+	CString strDriverNumber = strTargetPosition;
 	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32 + width / 8.0, strDriverNumber);
 
 	dc->SelectObject(oldpen);

@@ -110,7 +110,7 @@ void StationYardView::OnDraw(CDC* pDC)
 
 
 		TrNow_x = TrNow_x + 5;
-			//(pDoc->position) * 3 / 20.0;
+			//(pDoc->position)*3/20.0 + TrBgn_x;
 
 
 
@@ -207,20 +207,47 @@ int StationYardView::FindBS(int x)
 
 int StationYardView::DisCount(int x)
 {
+	int Num = 0;
 	for (int i = 0; i < 20; i++)
 	{
 		if (x == RD.m_csignal[i].ID)
+		{
 			if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
 			{
 				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
 				return (TrEnd_x - TrNow_x);
 			}
+			else if (TrNow_x <= 300)
+			{
+			if(Num == 5)
+			{
+				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
+				return (TrEnd_x - TrNow_x);
+
+			}
 			else
 			{
+				Num++;
 				x = RD.m_csignal[i].NextSig;
 				DisCount(x);
 			}
-				
+			}
+			else if (TrNow_x > 300)
+			{
+			if(Num == 6)
+			{
+				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
+				return (TrEnd_x - TrNow_x);
+
+			}
+			else
+			{
+				Num++;
+				x = RD.m_csignal[i].NextSig;
+				DisCount(x);
+			}
+			}
+		}	
 	}
 	return 0;
 }

@@ -80,7 +80,7 @@ void DMIView::OnDraw(CDC* pDC)
 	//Draw_SB_Curve(&MemDC,4000);//常用制动
 	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
 
-	Draw_EB_Curve_new(&MemDC, pDoc->target, pDoc->position);
+	Draw_EB_Curve_new(&MemDC, pDoc->target-100, pDoc->position);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -979,7 +979,7 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 	if (!pDoc)
 		return;
 	
-	if (pDoc->position < 10000-100	)//pDoc->target-100;
+	if (pDoc->position < pDoc->target-100)//pDoc->target-100;
 		pDoc->position+=((double)pDoc->speed/3.6);
 
 

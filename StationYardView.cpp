@@ -106,10 +106,12 @@ void StationYardView::OnDraw(CDC* pDC)
 		dcMem.Ellipse(TrNow_x - 28, TrNow_y + 15, TrNow_x - 20, TrNow_y + 23);
 		dcMem.Ellipse(TrNow_x - 10, TrNow_y + 15, TrNow_x - 2, TrNow_y + 23);/////////模拟的列车的形状
 		int X = FindBS(TrNow_x);
-		pDoc->target = DisCount(X)*20/3.0;
+		int a = DisCount(X);
+		pDoc->target = a*20/3.0;
 
 
-		TrNow_x = TrNow_x + 5;
+		//TrNow_x = TrNow_x + 5;
+		TrNow_x = (pDoc->position) * 3 / 20.0 + TrBgn_x;
 			//(pDoc->position)*3/20.0 + TrBgn_x;
 
 
@@ -249,7 +251,7 @@ int StationYardView::DisCount(int x)
 			}
 		}	
 	}
-	return 0;
+	//return 0;
 }
 
 

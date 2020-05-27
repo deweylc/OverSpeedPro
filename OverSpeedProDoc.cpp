@@ -32,7 +32,7 @@ COverSpeedProDoc::COverSpeedProDoc() noexcept
 {
 	speed = 0;
 	position = 0;
-	target = 10000;
+	target = 11200;
 	// TODO: 在此添加一次性构造代码
 
 }

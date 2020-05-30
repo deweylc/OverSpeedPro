@@ -30,7 +30,7 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual void OnInitialUpdate();
 	int FindBS(int x);//根据列车当前位置确定列车所处闭塞分区，并返回该闭塞分区的防护信号机的ID
-	int DisCount(int x);//根据列车当前所处闭塞分区的防护信号机的ID,计算行车目标点的距离
+	void DisCount(int x);//根据列车当前所处闭塞分区的防护信号机的ID,计算行车目标点的距离
 
 	//StationYardDoc* GetDocument();
 public:

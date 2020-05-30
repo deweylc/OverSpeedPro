@@ -70,20 +70,30 @@ void CBlockSec::DrawBS(CDC* pDC)
 			pDC->SelectObject(&pen1);
 			pDC->MoveTo(x1, y1);
 			pDC->LineTo(x2, y2);
-			pDC->MoveTo(x2 - 60, y2 - 45);
+			/*pDC->MoveTo(x2 - 60, y2 - 45);
 			pDC->LineTo(x2 - 30, y2);
 			pDC->MoveTo(x1, y1 - 45);
-			pDC->LineTo(x2 - 60, y2 - 45);
+			pDC->LineTo(x2 - 60, y2 - 45);*/
+			pDC->SelectObject(&pen4);
+			pDC->MoveTo(x1, y1 - 5);
+			pDC->LineTo(x1, y1 + 5);
+			pDC->MoveTo(x2, y2 - 5);
+			pDC->LineTo(x2, y2 + 5);
 		}
 		else if (State == 2)
 		{
 			pDC->SelectObject(&pen2);
 			pDC->MoveTo(x1, y1);
 			pDC->LineTo(x2, y2);
-			pDC->MoveTo(x2 - 60, y2 - 45);
+			/*pDC->MoveTo(x2 - 60, y2 - 45);
 			pDC->LineTo(x2 - 30, y2);
 			pDC->MoveTo(x1, y1 - 45);
-			pDC->LineTo(x2 - 60, y2 - 45);
+			pDC->LineTo(x2 - 60, y2 - 45);*/
+			pDC->SelectObject(&pen4);
+			pDC->MoveTo(x1, y1 - 5);
+			pDC->LineTo(x1, y1 + 5);
+			pDC->MoveTo(x2, y2 - 5);
+			pDC->LineTo(x2, y2 + 5);
 		}
 		break;
 	}

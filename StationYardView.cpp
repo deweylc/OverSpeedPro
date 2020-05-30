@@ -19,7 +19,7 @@ int Train1 = 1;//用于确定列车是否出发
 // C电路图View
 int TrBgn_x = 50, TrBgn_y = 75;//列车出发点的坐标
 int TrNow_x = TrBgn_x, TrNow_y = TrBgn_y;//列车当前位置的坐标
-int TrEnd_x , TrEnd_y = TrNow_y;//列车停车点的坐标
+int TrEnd_x, TrEnd_y = TrNow_y;//列车停车点的坐标
 StationYardView::StationYardView()
 {
 	if (RD.dubiaojishu == 0)
@@ -60,7 +60,7 @@ BEGIN_MESSAGE_MAP(StationYardView, CScrollView)
 	ON_COMMAND(ID_1_32772, &StationYardView::On132772)
 	ON_COMMAND(ID_1_32773, &StationYardView::On132773)
 	ON_WM_RBUTTONDOWN()
-//	ON_WM_CONTEXTMENU()
+	//	ON_WM_CONTEXTMENU()
 END_MESSAGE_MAP()
 
 // StationYardView 绘图
@@ -81,7 +81,7 @@ void StationYardView::OnDraw(CDC* pDC)
 
 	dcMem.CreateCompatibleDC(pDC); //依附窗口DC创建兼容内存DC
 	//创建兼容位图(必须用pDC创建，否则画出的图形变成黑色)
-	bmp.CreateCompatibleBitmap(pDC, rc.Width()*2, rc.Height());
+	bmp.CreateCompatibleBitmap(pDC, rc.Width() * 2, rc.Height());
 	CBitmap* pOldBit = dcMem.SelectObject(&bmp);
 	//按原来背景填充客户区，不然会是黑色
 	dcMem.FillSolidRect(rc, RGB(0, 0, 0));
@@ -106,17 +106,10 @@ void StationYardView::OnDraw(CDC* pDC)
 		dcMem.Ellipse(TrNow_x - 28, TrNow_y + 15, TrNow_x - 20, TrNow_y + 23);
 		dcMem.Ellipse(TrNow_x - 10, TrNow_y + 15, TrNow_x - 2, TrNow_y + 23);/////////模拟的列车的形状
 		int X = FindBS(TrNow_x);
-		int a = DisCount(X);
-		pDoc->target = a*20/3.0;
-
-
-		//TrNow_x = TrNow_x + 5;
+		DisCount(X);
+		pDoc->target = (TrEnd_x-TrBgn_x) * 20 / 3.0;
 		TrNow_x = (pDoc->position) * 3 / 20.0 + TrBgn_x;
-			//(pDoc->position)*3/20.0 + TrBgn_x;
-
-
-
-
+		//(pDoc->position)*3/20.0 + TrBgn_x;
 
 		if (TrNow_x >= TrEnd_x)
 		{
@@ -124,7 +117,7 @@ void StationYardView::OnDraw(CDC* pDC)
 		}
 	}
 
-    //车站侧线区段
+	//车站侧线区段
 	CPen pen;
 	pen.CreatePen(PS_SOLID, 4, RGB(190, 190, 190));
 	dcMem.SelectObject(&pen);
@@ -132,27 +125,33 @@ void StationYardView::OnDraw(CDC* pDC)
 	dcMem.LineTo(1800, 80);
 	dcMem.MoveTo(1800, 80);
 	dcMem.LineTo(1885, 80);
+
+	dcMem.MoveTo(150, 125);
+	dcMem.LineTo(105, 80);
+	dcMem.MoveTo(105, 80);
+	dcMem.LineTo(15, 80);
+
 	pen.DeleteObject();
 
 
 
-for (int i = 0; i < 20; i++)
-{
-	SetSigClr(RD.m_csignal[i].ID);
-	RD.m_csignal[i].DrawSignal(&dcMem);
-}
-for (int i = 0; i < 20; i++)
-{
-	SetState();
-	RD.m_cblocksec[i].DrawBS(&dcMem);
-}
+	for (int i = 0; i < 20; i++)
+	{
+		SetSigClr(RD.m_csignal[i].ID);
+		RD.m_csignal[i].DrawSignal(&dcMem);
+	}
+	for (int i = 0; i < 20; i++)
+	{
+		SetState();
+		RD.m_cblocksec[i].DrawBS(&dcMem);
+	}
 
-pDC->BitBlt(0, 0, rc.Width()*2, rc.Height(), &dcMem, 0, 0, SRCCOPY);
+	pDC->BitBlt(0, 0, rc.Width() * 2, rc.Height(), &dcMem, 0, 0, SRCCOPY);
 
-//将内存DC上的图象拷贝到前台
-	//绘图完成后的清理
-dcMem.DeleteDC();     //删除DC
-bmp.DeleteObject(); //删除位图
+	//将内存DC上的图象拷贝到前台
+		//绘图完成后的清理
+	dcMem.DeleteDC();     //删除DC
+	bmp.DeleteObject(); //删除位图
 }
 
 
@@ -194,64 +193,94 @@ void StationYardView::OnInitialUpdate()//
 	SetScrollSizes(MM_TEXT, sizeTotal);
 	//CView::OnInitialUpdate();
 	SetTimer(1, 100, NULL);
-		
+
 	// TODO: 在此添加专用代码和/或调用基类
 }
-
 int StationYardView::FindBS(int x)
 {
-	for (int i = 0; i < 20; i++)
+	if (x <= 80)
 	{
-		if ((x > RD.m_cblocksec[i].x1) && (x < RD.m_cblocksec[i].x2))
-			return RD.m_cblocksec[i].ProSignal;
+		return 1013;
+	}
+	else
+	{
+		for (int i = 0; i < 20; i++)
+		{
+			if ((x > RD.m_cblocksec[i].x1) && (x < RD.m_cblocksec[i].x2))
+				return RD.m_cblocksec[i].ProSignal;
+		}
 	}
 }
-
-int StationYardView::DisCount(int x)
+int Num = 0;
+void StationYardView::DisCount(int x)//x是列车所处区段的防护信号机的ID
 {
-	int Num = 0;
 	for (int i = 0; i < 20; i++)
 	{
 		if (x == RD.m_csignal[i].ID)
 		{
-			if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
+			if (TrNow_x < 80)
 			{
-				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
-				return (TrEnd_x - TrNow_x);
+				if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
+				{
+					if (Num > 7)
+					{
+						TrEnd_x = GetSigX(RD.m_csignal[i].ID);
+					}
+					else
+					{
+						TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);
+					}
+					Num = 0;
+					//return 0;
+				}
+				else if (Num >= 7)
+				{
+					TrEnd_x = GetSigX(RD.m_csignal[i].ID);
+					Num = 0;
+					//return 0;
+				}
+				else
+				{
+					Num++;
+					x = RD.m_csignal[i].NextSig;
+					DisCount(x);
+				}
 			}
-			else if (TrNow_x <= 300)
+			else 
 			{
-			if(Num == 5)
-			{
-				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
-				return (TrEnd_x - TrNow_x);
-
+				if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
+				{
+					if (Num >= 8)
+					{
+						TrEnd_x = GetSigX(RD.m_csignal[i].ID);
+					}
+					else
+					{
+						TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);
+					}
+					Num = 0;
+					//return 0;
+				}
+				else if (Num >= 8)
+				{
+					TrEnd_x = GetSigX(RD.m_csignal[i].ID);
+					Num = 0;
+					//return 0;
+				}
+				else
+				{
+					Num++;
+					x = RD.m_csignal[i].NextSig;
+					DisCount(x);
+				}
 			}
-			else
-			{
-				Num++;
-				x = RD.m_csignal[i].NextSig;
-				DisCount(x);
-			}
-			}
-			else if (TrNow_x > 300)
-			{
-			if(Num == 6)
-			{
-				TrEnd_x = GetSigX(RD.m_csignal[i].NextSig);//红灯信号前停车
-				return (TrEnd_x - TrNow_x);
-
-			}
-			else
-			{
-				Num++;
-				x = RD.m_csignal[i].NextSig;
-				DisCount(x);
-			}
-			}
-		}	
+				
+			break;
+		}
 	}
-	//return 0;
+	/*TrEnd_x = GetSigX(x);
+	return (TrEnd_x - TrBgn_x);*/
+
 }
 
 
@@ -279,10 +308,10 @@ void StationYardView::SetSigClr(int SigID)
 			}
 			else if (RD.m_csignal[i].Attr == 3)
 			{
-				if ((TrNow_x + 30) > RD.m_csignal[i].x1)
+				if ((TrNow_x) > RD.m_csignal[i].x1)
 					RD.m_csignal[i].Color = 4;
 			}
-			
+
 		}
 	}
 }
@@ -301,8 +330,8 @@ int StationYardView::GetSigClr(int SigID)
 
 		}
 	}
-	else 
-        return 0;
+	else
+		return 0;
 }
 
 void StationYardView::SetState()
@@ -311,7 +340,7 @@ void StationYardView::SetState()
 	{
 		if ((RD.m_cblocksec[i].State == 3))
 			RD.m_cblocksec[i].State = 3;
-		else if ((RD.m_cblocksec[i].x1 >= (TrNow_x))|| (RD.m_cblocksec[i].x2 <= (TrNow_x - 30)))
+		else if ((RD.m_cblocksec[i].x1 >= (TrNow_x)) || (RD.m_cblocksec[i].x2 <= (TrNow_x - 30)))
 			RD.m_cblocksec[i].State = 1;
 		else
 			RD.m_cblocksec[i].State = 2;
@@ -364,7 +393,7 @@ void StationYardView::On132773()//解除轨道区段故障
 	GetCursorPos(&point);*/
 	for (int i = 0; i < 20; i++)
 	{
-		if (RD.m_cblocksec[i].ID==ID)
+		if (RD.m_cblocksec[i].ID == ID)
 		{
 			RD.m_cblocksec[i].State = 1;
 			break;
@@ -377,7 +406,7 @@ void StationYardView::On132773()//解除轨道区段故障
 void StationYardView::OnRButtonDown(UINT nFlags, CPoint p1)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	
+
 	for (int i = 0; i < 20; i++)
 	{
 		if ((p1.x > RD.m_cblocksec[i].x1) && (p1.x < RD.m_cblocksec[i].x2))
@@ -392,7 +421,7 @@ void StationYardView::OnRButtonDown(UINT nFlags, CPoint p1)
 			ID = RD.m_cblocksec[i].ID;
 			break;
 		}
-			
+
 	}
 	CScrollView::OnRButtonDown(nFlags, p1);
 }

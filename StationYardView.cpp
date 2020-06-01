@@ -177,6 +177,7 @@ void StationYardView::Dump(CDumpContext& dc) const
 void StationYardView::On01()//正线发车
 {
 	Train = 1;
+	Train1 = 1;
 	TrBgn_x = 50;
 	TrNow_x = TrBgn_x;
 	for (int i = 0; i < 20; i++)
@@ -220,9 +221,13 @@ void StationYardView::On02()//正线接车
 void StationYardView::On03()
 {
 	TrBgn_x = 0;
-	Train1 = 1;
+	Train1 = 0;
 	TrNow_x = TrBgn_x;
-	Train = 0;/*
+	Train = 0;
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	pDoc->position = 0;
+	pDoc->target = 0;
+	/*
 	RD.dubiaojishu == 0;
 	StationYardView();*/
 }

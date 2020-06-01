@@ -80,7 +80,7 @@ void DMIView::OnDraw(CDC* pDC)
 	//Draw_SB_Curve(&MemDC,4000);//常用制动
 	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
 
-	Draw_EB_Curve_new(&MemDC, pDoc->target-100, pDoc->position);
+	Draw_EB_Curve_new(&MemDC, pDoc->target, pDoc->position);
 	CPoint p;
 	p.x = 1200;
 	p.y = 300;
@@ -872,25 +872,29 @@ void DMIView::DrawInfoTable(CDC *dc)
 	
 
 
-	dc->TextOut(p.x+50, p.y+((double)width*25)/32, TEXT("当前位置"));//列车号
-	CString strTrainNumber = strPosition;
+	dc->TextOut(p.x+50, p.y+((double)width*25)/32, TEXT("列车号"));//列车号
+	CString strTrainNumber = "NULL";
 	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32, strTrainNumber);
-	dc->TextOut(p.x + 50, p.y + ((double)width * 25) / 32+width/8.0, TEXT("目标位置"));//车次号
+	dc->TextOut(p.x + 50, p.y + ((double)width * 25) / 32+width/8.0, TEXT("车次号"));//车次号
 
-	CString strDriverNumber = strTargetPosition;
+	CString strDriverNumber = "NULL";
 	dc->TextOut(p.x + 50+length/6.0, p.y + ((double)width * 25) / 32 + width / 8.0, strDriverNumber);
 
 	dc->SelectObject(oldpen);
 }
 double DMIView::GetLimitSpeed(double position)
 {
+	double train_speed, solid_speed, rood_speed, limit_speed;
 	double limitv = 200;
 	//获得临时限速信息
-	if (position >= (3000) && position <= (3500))//误差补偿 车尾保持
+
+	if (position >= (3000) && position <= (4000))
 		return 100;
-	if (position >= (3500) && position <= (4000))
+	if (position >= (4000) && position <= (5000))
 		return 150;
-	return limitv;
+	//考虑是以闭塞分区为单位？
+	
+	return limitv;//min(train_speed,solid_speed,rood_speed,limit_speed);
 }
 
 void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
@@ -900,7 +904,7 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 	if (!pDoc)
 		return;
 	//计算n个点的函数值
-	double n = 200;
+	double n = 205;
 	double s = 0;//长度
 	vector<pair<double, double>> point;
 	int i = 0;
@@ -912,7 +916,7 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 		if (point.size() == 0)
 		{
 			s += EB_Distance(1, 0);
-			point.push_back(pair<double,double>(1, target - EB_Distance(1, 0)-100));//100为安全余量	
+			point.push_back(pair<double,double>(1, target - EB_Distance(1, 0)));
 		}
 		else
 		{
@@ -920,7 +924,9 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 			double pos = point.back().second;
 			double step = EB_Distance(v, v - 1);
 			s += EB_Distance(v, v - 1);
-			point.push_back(pair<double, double>(min(GetLimitSpeed(pos-step),v), pos - step));
+			double limte_v;
+			limte_v = min(GetLimitSpeed(pos - step), GetLimitSpeed(pos - step - pDoc->Train_Length));
+			point.push_back(pair<double, double>(min(limte_v,v), pos - step));
 		}
 	}
 	if (point.size() == 0)
@@ -979,7 +985,7 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 	if (!pDoc)
 		return;
 	
-	if (pDoc->position < pDoc->target-100)//pDoc->target-100;
+	if (pDoc->position < pDoc->target)
 		pDoc->position+=((double)pDoc->speed/3.6);
 
 

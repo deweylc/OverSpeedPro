@@ -72,18 +72,18 @@ void DMIView::OnDraw(CDC* pDC)
 	MemDC.FillSolidRect(memRc.left, memRc.top, memRc.Width(), memRc.Height(), RGB(0,0,0));
 	////
 
+	/*以下是程序的相关操作*/
 
 	DrawXY(&MemDC, 660, 300, CPoint(50, 400), 15000, 250);
 	//Draw_OverSpeedCurve(1600, 3800);
 	//Draw_EB_Curve(&MemDC,4000, 0);//紧急制动
-	//Draw_EB_Chufa_Curve(&MemDC,3900);//紧急制动触发
+	//Draw_EB_Chufa_Curve(&MemDC,10000);//紧急制动触发
 	//Draw_SB_Curve(&MemDC,4000);//常用制动
 	//Draw_EB_Curve(&MemDC,3200, 4000, 0, 200);
 
 	Draw_EB_Curve_new(&MemDC, pDoc->target, pDoc->position);
-	CPoint p;
-	p.x = 1200;
-	p.y = 300;
+	Draw_EB_Chufa_Curve_new(&MemDC, pDoc->target, pDoc->position);
+	Draw_SB_Curve_new(&MemDC, pDoc->target, pDoc->position);
 //	Draw_Dashboard(CPoint(1100,300),160);
 	DrawInfoTable(&MemDC);
 
@@ -325,7 +325,7 @@ double DMIView::SB_Distance(double v1, double v2)
 		double s_new = ((v1 - i) * (v1 - i) - (v1 - i - 1) * (v1 - i - 1)) / ((2.0 * (12.96 / 1.08)) * a_new); // 回转系数考虑0.08
 		S = S + s_new;
 	}
-	S += 100;//常用制动安全余量
+	
 
 	double S_c;
 	S_c = (v1 * 2.3) / 3.6 + EB_Distance_chufa(v1, v2);
@@ -846,7 +846,7 @@ void DMIView::DrawInfoTable(CDC *dc)
 
 	dc->TextOut(cow[0].x + 30+length/3.0, p.y + ((double)width * 3) / 32.0, TEXT("当前位置"));
 	CString strPosition ;
-	strPosition.Format("%d", pDoc->position);
+	strPosition.Format("%.0f", pDoc->position);
 	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0, strPosition);
 
 
@@ -856,7 +856,7 @@ void DMIView::DrawInfoTable(CDC *dc)
 
 	dc->TextOut(cow[0].x + 30 + length / 3.0, p.y + ((double)width * 3) / 32.0+width/4.0, TEXT("目标位置"));
 	CString strTargetPosition;
-	strTargetPosition.Format("%d", pDoc->target);
+	strTargetPosition.Format("%.0f", pDoc->target);
 	dc->TextOut(cow[0].x + 30 + length / 3.0+length/6.0, p.y + ((double)width * 3) / 32.0 + width / 4.0, strTargetPosition);
 
 	//dc->TextOut(cow[0].x + 30, p.y + ((double)width * 3) / 32.0 + width / 2.0, TEXT("目标速度"));
@@ -885,7 +885,7 @@ void DMIView::DrawInfoTable(CDC *dc)
 double DMIView::GetLimitSpeed(double position)
 {
 	double train_speed, solid_speed, rood_speed, limit_speed;
-	double limitv = 200;
+	double limitv = 205;
 	//获得临时限速信息
 
 	if (position >= (3000) && position <= (4000))
@@ -929,11 +929,13 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 			point.push_back(pair<double, double>(min(limte_v,v), pos - step));
 		}
 	}
+	/*
 	if (point.size() == 0)
 		pDoc->speed = 0;
 	else
 		pDoc->speed = point.back().first;
-
+	//将该曲线的速度赋予列车速度【假设列车贴线运行】
+	*/
 	//函数值与坐标转换
 	CPoint* p = new CPoint[point.size()];
 	for (int i = 0; i < point.size(); i++)
@@ -944,6 +946,137 @@ void DMIView::Draw_EB_Curve_new(CDC* pDC, double target, double position)
 		p[i].y = start.y - y;
 	}
 	CPen newPen2(BS_SOLID, 2, RGB(0, 0, 255));
+	CPen* oldPen = pDC->SelectObject(&newPen2);
+	//将点集point连接起来
+	//Draw_X(pDC, p[0]);图上标点
+	pDC->MoveTo(p[0]);
+	for (int i = 1; i < point.size(); i++)
+	{
+		//Draw_X(pDC, p[i]);
+		pDC->LineTo(p[i]);
+		pDC->MoveTo(p[i]);
+	}
+	pDC->LineTo(p[point.size() - 1]);
+	pDC->SelectObject(oldPen);
+}
+
+
+void DMIView::Draw_EB_Chufa_Curve_new(CDC* pDC, double target, double position)
+{
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+	//计算n个点的函数值
+	double n = 205;
+	double s = 0;//长度
+	vector<pair<double, double>> point;
+	int i = 0;
+	while (true)
+	{
+		if (target - s <= position)
+			break;
+
+		if (point.size() == 0)
+		{
+			s += EB_Distance_chufa(1, 0);
+			point.push_back(pair<double, double>(1, target - EB_Distance_chufa(1, 0)));
+		}
+		else
+		{
+			double v = point.back().first + 1;
+			double pos = point.back().second;
+			double step = EB_Distance_chufa(v, 0)-EB_Distance_chufa(v-1,0);
+			s += step;
+		
+			double limte_v;
+			limte_v = min(GetLimitSpeed(pos - step), GetLimitSpeed(pos - step - pDoc->Train_Length));
+			limte_v = min(limte_v, 200);
+			point.push_back(pair<double, double>(min(limte_v, v), pos - step));
+		}
+	}
+	/*
+	if (point.size() == 0)
+		pDoc->speed = 0;
+	else
+		pDoc->speed = point.back().first;
+		//速度赋予
+		*/
+	//函数值与坐标转换
+	CPoint* p = new CPoint[point.size()];
+	for (int i = 0; i < point.size(); i++)
+	{
+		double x = (point[i].second / MaxX) * long_x;
+		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
+		p[i].x = x + start.x;
+		p[i].y = start.y - y;
+	}
+	CPen newPen2(BS_SOLID, 2, RGB(255, 0, 255));
+	CPen* oldPen = pDC->SelectObject(&newPen2);
+	//将点集point连接起来
+	//Draw_X(pDC, p[0]);图上标点
+	pDC->MoveTo(p[0]);
+	for (int i = 1; i < point.size(); i++)
+	{
+		//Draw_X(pDC, p[i]);
+		pDC->LineTo(p[i]);
+		pDC->MoveTo(p[i]);
+	}
+	pDC->LineTo(p[point.size() - 1]);
+	pDC->SelectObject(oldPen);
+}
+
+void DMIView::Draw_SB_Curve_new(CDC* pDC, double target, double position)
+{
+	COverSpeedProDoc* pDoc = (COverSpeedProDoc*)GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+	//计算n个点的函数值
+	double n = 205;
+	double s = 0;//长度
+	vector<pair<double, double>> point;
+	int i = 0;
+	while (true)
+	{
+		if (target - s <= position)
+			break;
+
+		if (point.size() == 0)
+		{
+			s += SB_Distance(1, 0);
+			point.push_back(pair<double, double>(1, target - SB_Distance(1, 0)));
+		}
+		else
+		{
+			double v = point.back().first + 1;
+			double pos = point.back().second;
+			double step = SB_Distance(v, 0) - SB_Distance(v - 1, 0);
+			s += step;
+
+			double limte_v;
+			limte_v = min(GetLimitSpeed(pos - step), GetLimitSpeed(pos - step - pDoc->Train_Length));
+			limte_v = min(limte_v, 195);
+			point.push_back(pair<double, double>(min(limte_v, v), pos - step));
+		}
+	}
+
+	if (point.size() == 0)
+		pDoc->speed = 0;
+	else
+		pDoc->speed = point.back().first;
+	//速度赋予
+
+//函数值与坐标转换
+	CPoint* p = new CPoint[point.size()];
+	for (int i = 0; i < point.size(); i++)
+	{
+		double x = (point[i].second / MaxX) * long_x;
+		double y = (point[i].first / MaxY) * long_y;//速度-距离转距离-速度关系
+		p[i].x = x + start.x;
+		p[i].y = start.y - y;
+	}
+	CPen newPen2(BS_SOLID, 2, RGB(255, 215, 0));
 	CPen* oldPen = pDC->SelectObject(&newPen2);
 	//将点集point连接起来
 	//Draw_X(pDC, p[0]);图上标点
@@ -985,6 +1118,8 @@ void DMIView::OnTimer(UINT_PTR nIDEvent)
 	if (!pDoc)
 		return;
 	
+
+
 	if (pDoc->position < pDoc->target)
 		pDoc->position+=((double)pDoc->speed/3.6);
 

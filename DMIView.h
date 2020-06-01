@@ -42,6 +42,8 @@ public:
 
 	virtual double GetLimitSpeed(double position);//获得某个位置的固定限速
 	virtual void Draw_EB_Curve_new(CDC* pDC, double target,  double position);//设计了新的紧急制动曲线的计算方法
+	virtual void Draw_EB_Chufa_Curve_new(CDC* pDC, double target, double position);//设计了新的紧急制动触发曲线的计算方法
+	virtual void Draw_SB_Curve_new(CDC* pDC, double target, double position);//设计了新的常用制动曲线的计算方法
 	
 #ifdef _DEBUG
 	virtual void AssertValid() const;

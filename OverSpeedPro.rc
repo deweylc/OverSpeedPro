@@ -53,9 +53,9 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
-    "#include ""res\\OverSpeedPro.rc2""  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐褰掓偋閻愬灚顐芥い鎰堕檮閸庡秹鏌涢弴銊ユ灓闁靛牜鍋呯换?\n"
-    "#include ""l.CHS\\afxres.rc""      // 闂備礁鎼粔鏉懨洪妶澶婇棷妞ゆ牗绮庣壕濂告煕閺囥劋绨兼い?\n"
-    "#include ""l.CHS\\afxprint.rc""    // 闂備胶鎳撻悘姘跺箰缁嬭法鏆?闂備胶鎳撻悘姘跺箰缁嬭法鏆ら柛鎰ㄦ櫔缁憋綁鏌涢弴銊ユ珮婵炲吋妫冮幃纭咁槻閻庢凹鍘鹃懞?\n"
+    "#include ""res\\OverSpeedPro.rc2""  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐鎼佸磹瑜版帗鍋嬮柣鎰仛椤愯姤銇勯幇鍫曟闁稿骸绉归弻娑㈠即閵娿儲鐏撻梺闈涚墱閸嬪懐鎹?\n"
+    "#include ""l.CHS\\afxres.rc""      // 闂傚倷绀侀幖顐ょ矓閺夋嚚娲Χ婢跺﹪妫峰銈嗙墬缁海澹曟總鍛婄厱闁哄洢鍔嬬花鍏笺亜?\n"
+    "#include ""l.CHS\\afxprint.rc""    // 闂傚倷鑳堕幊鎾绘倶濮樿泛绠扮紒瀣硶閺?闂傚倷鑳堕幊鎾绘倶濮樿泛绠扮紒瀣硶閺嗐倝鏌涢幇銊︽珨缂佹唻缍侀弻娑㈠即閵娿儲鐝┑鐐插悑濡啴骞冪涵鍜佹Щ闁诲孩鍑归崢楣冩嚍?\n"
     "#endif\r\n"
     "\0"
 END
@@ -152,14 +152,6 @@ BEGIN
         MENUITEM "解除故障",                        ID_1_32773
         MENUITEM "设置异物侵限",                      ID_1_32775
         MENUITEM "解除异物侵限",                      ID_1_32776
-    END
-END
-
-IDR_MENU1 MENU
-BEGIN
-    POPUP "2"
-    BEGIN
-        MENUITEM "列车出发",                        ID_2_32774
     END
 END
 
@@ -404,9 +396,9 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
-#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐褰掓偋閻愬灚顐芥い鎰堕檮閸庡秹鏌涢弴銊ユ灓闁靛牜鍋呯换?
-#include "l.CHS\afxres.rc"      // 闂備礁鎼粔鏉懨洪妶澶婇棷妞ゆ牗绮庣壕濂告煕閺囥劋绨兼い?
-#include "l.CHS\afxprint.rc"    // 闂備胶鎳撻悘姘跺箰缁嬭法鏆?闂備胶鎳撻悘姘跺箰缁嬭法鏆ら柛鎰ㄦ櫔缁憋綁鏌涢弴銊ユ珮婵炲吋妫冮幃纭咁槻閻庢凹鍘鹃懞?
+#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐鎼佸磹瑜版帗鍋嬮柣鎰仛椤愯姤銇勯幇鍫曟闁稿骸绉归弻娑㈠即閵娿儲鐏撻梺闈涚墱閸嬪懐鎹?
+#include "l.CHS\afxres.rc"      // 闂傚倷绀侀幖顐ょ矓閺夋嚚娲Χ婢跺﹪妫峰銈嗙墬缁海澹曟總鍛婄厱闁哄洢鍔嬬花鍏笺亜?
+#include "l.CHS\afxprint.rc"    // 闂傚倷鑳堕幊鎾绘倶濮樿泛绠扮紒瀣硶閺?闂傚倷鑳堕幊鎾绘倶濮樿泛绠扮紒瀣硶閺嗐倝鏌涢幇銊︽珨缂佹唻缍侀弻娑㈠即閵娿儲鐝┑鐐插悑濡啴骞冪涵鍜佹Щ闁诲孩鍑归崢楣冩嚍?
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

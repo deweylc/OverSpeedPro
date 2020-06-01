@@ -17,6 +17,7 @@ public:
 	CReadData RD;
 	CButton m_button1;//正线发车
 	CButton m_button2;//正线接车
+	CButton m_button3;//列车复位
 
 
 	virtual void OnDraw(CDC* pDC);      // 重写以绘制该视图
@@ -32,6 +33,7 @@ protected:
 public:
 	afx_msg void On01();//正线发车
 	afx_msg void On02();//正线接车
+	afx_msg void On03();//列车复位
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
@@ -51,7 +53,6 @@ public:
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 //	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void On232774();
 	afx_msg void On132775();
 	afx_msg void On132776();
 };

@@ -9,13 +9,12 @@
 #define IDR_MENU2                       319
 #define IDR_MENU3                       320
 #define IDR_MENU4                       321
-#define IDR_MENU1                       324
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
+#define IDC_BUTTON3                     1002
 #define ID_32771                        32771
 #define ID_1_32772                      32772
 #define ID_1_32773                      32773
-#define ID_2_32774                      32774
 #define ID_1_32775                      32775
 #define ID_1_32776                      32776
 

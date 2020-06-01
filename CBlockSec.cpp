@@ -19,6 +19,10 @@ void CBlockSec::DrawBS(CDC* pDC)
 	pen3.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
 	CPen pen4;
 	pen4.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+	CPen pen5;
+	pen5.CreatePen(PS_SOLID, 4, RGB(255, 255, 255));
+	CPen pen6;
+	pen6.CreatePen(PS_SOLID, 5, RGB(255, 0, 0));
 	//pDC->SelectObject(&pen1);
 	switch (Attr)
 	{
@@ -63,6 +67,25 @@ void CBlockSec::DrawBS(CDC* pDC)
 			pDC->MoveTo(x2, y2 - 5);
 			pDC->LineTo(x2, y2 + 5);
 		}
+		else if (State == 4)
+		{
+			pDC->SelectObject(&pen2);
+			pDC->MoveTo(x1, y1);
+			pDC->LineTo(x2, y2);
+			pDC->SelectObject(&pen6);
+			//pDC->TextOutA((x1 + x2) / 2 , (y1 + y2) / 2 - 30, "H");
+			pDC->MoveTo((x1 + x2) / 2 - 10, (y1 + y2) / 2 - 40);
+			pDC->LineTo((x1 + x2) / 2 - 10, (y1 + y2) / 2 - 20);
+			pDC->MoveTo((x1 + x2) / 2 + 10, (y1 + y2) / 2 - 40);
+			pDC->LineTo((x1 + x2) / 2 + 10, (y1 + y2) / 2 - 20);
+			pDC->MoveTo((x1 + x2) / 2 + 10, (y1 + y2) / 2 - 30);
+			pDC->LineTo((x1 + x2) / 2 - 10, (y1 + y2) / 2 - 30);
+			pDC->SelectObject(&pen4);
+			pDC->MoveTo(x1, y1 - 5);
+			pDC->LineTo(x1, y1 + 5);
+			pDC->MoveTo(x2, y2 - 5);
+			pDC->LineTo(x2, y2 + 5);
+		}
 		break;	
 	case 2:
 		if (State == 1)
@@ -83,6 +106,21 @@ void CBlockSec::DrawBS(CDC* pDC)
 		else if (State == 2)
 		{
 			pDC->SelectObject(&pen2);
+			pDC->MoveTo(x1, y1);
+			pDC->LineTo(x2, y2);
+			/*pDC->MoveTo(x2 - 60, y2 - 45);
+			pDC->LineTo(x2 - 30, y2);
+			pDC->MoveTo(x1, y1 - 45);
+			pDC->LineTo(x2 - 60, y2 - 45);*/
+			pDC->SelectObject(&pen4);
+			pDC->MoveTo(x1, y1 - 5);
+			pDC->LineTo(x1, y1 + 5);
+			pDC->MoveTo(x2, y2 - 5);
+			pDC->LineTo(x2, y2 + 5);
+		}
+		else if (State == 3)
+		{
+			pDC->SelectObject(&pen5);
 			pDC->MoveTo(x1, y1);
 			pDC->LineTo(x2, y2);
 			/*pDC->MoveTo(x2 - 60, y2 - 45);

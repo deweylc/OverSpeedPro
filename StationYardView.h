@@ -15,6 +15,9 @@ protected:
 public:
 	//CButton m_button1, m_button2;
 	CReadData RD;
+	CButton m_button1;//正线发车
+	CButton m_button2;//正线接车
+
 
 	virtual void OnDraw(CDC* pDC);      // 重写以绘制该视图
 #ifdef _DEBUG
@@ -26,6 +29,10 @@ public:
 
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void On01();//正线发车
+	afx_msg void On02();//正线接车
+
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual void OnInitialUpdate();
@@ -43,6 +50,10 @@ public:
 	afx_msg void On132773();
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 //	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void On232774();
+	afx_msg void On132775();
+	afx_msg void On132776();
 };
 
 

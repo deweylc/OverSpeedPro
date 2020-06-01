@@ -150,6 +150,16 @@ BEGIN
     BEGIN
         MENUITEM "设置故障",                        ID_1_32772
         MENUITEM "解除故障",                        ID_1_32773
+        MENUITEM "设置异物侵限",                      ID_1_32775
+        MENUITEM "解除异物侵限",                      ID_1_32776
+    END
+END
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "2"
+    BEGIN
+        MENUITEM "列车出发",                        ID_2_32774
     END
 END
 
@@ -192,48 +202,6 @@ BEGIN
     LTEXT           "OverSpeedPro，版本 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "版权所有 (C) 2020",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
-END
-
-IDD_DIALOG1 DIALOGEX 0, 0, 309, 176
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
-    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
-END
-
-IDD_DIALOG2 DIALOGEX 0, 0, 309, 176
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
-    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
-    PUSHBUTTON      "Button1",IDC_BUTTON1,0,0,50,14
-    PUSHBUTTON      "Button2",IDC_BUTTON2,7,18,50,14
-END
-
-IDD_DIALOG3 DIALOGEX 0, 0, 309, 176
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
-    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
-    PUSHBUTTON      "车辆管理",IDC_BUTTON1,17,15,50,14
-END
-
-IDD_DIALOG4 DIALOGEX 0, 0, 309, 176
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
-    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
-    PUSHBUTTON      "Button1",IDC_BUTTON1,93,19,50,14
-    LTEXT           "列车始端坐标",IDC_STATIC,40,57,49,8
-    EDITTEXT        IDC_EDIT1,134,55,40,14,ES_AUTOHSCROLL
 END
 
 
@@ -291,66 +259,8 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 55
     END
-
-    IDD_DIALOG1, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 169
-    END
-
-    IDD_DIALOG2, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 169
-    END
-
-    IDD_DIALOG3, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 169
-    END
-
-    IDD_DIALOG4, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 169
-    END
 END
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_DIALOG1 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_DIALOG2 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_DIALOG3 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_DIALOG4 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -494,9 +404,9 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
-#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傚倸鍊归悧鐐垫椤愶附鍎嶉柛鏇ㄥ枤閵堫偅绻?
-#include "l.CHS\afxres.rc"      // 闂佸搫绉村ú銈夊闯椤栨粎纾奸柛鏇ㄤ簼椤?
-#include "l.CHS\afxprint.rc"    // 闂佺懓鐏氶幐绋跨暤?闂佺懓鐏氶幐绋跨暤閸愨晪绱ｉ柛鏇ㄥ櫘濞兼棃鎮硅鐎氼厾鑺?
+#include "res\OverSpeedPro.rc2"  // 闂?Microsoft Visual C++ 缂傚倸鍊搁崐褰掓偋閻愬灚顐芥い鎰堕檮閸庡秹鏌涢弴銊ユ灓闁靛牜鍋呯换?
+#include "l.CHS\afxres.rc"      // 闂備礁鎼粔鏉懨洪妶澶婇棷妞ゆ牗绮庣壕濂告煕閺囥劋绨兼い?
+#include "l.CHS\afxprint.rc"    // 闂備胶鎳撻悘姘跺箰缁嬭法鏆?闂備胶鎳撻悘姘跺箰缁嬭法鏆ら柛鎰ㄦ櫔缁憋綁鏌涢弴銊ユ珮婵炲吋妫冮幃纭咁槻閻庢凹鍘鹃懞?
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

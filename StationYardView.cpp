@@ -119,21 +119,47 @@ void StationYardView::OnDraw(CDC* pDC)
 	//车站侧线区段
 	CPen pen;
 	pen.CreatePen(PS_SOLID, 4, RGB(190, 190, 190));
+	CPen pen1;
+	pen1.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));//hei色画笔
+	CPen pen2;
+	pen2.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
 	dcMem.SelectObject(&pen);
 	dcMem.MoveTo(1770, 125);
 	dcMem.LineTo(1800, 80);
 	dcMem.MoveTo(1800, 80);
-	dcMem.LineTo(1885, 80);
+	dcMem.LineTo(1900, 80);
 
 	dcMem.MoveTo(150, 125);
 	dcMem.LineTo(105, 80);
 	dcMem.MoveTo(105, 80);
 	dcMem.LineTo(15, 80);
+	dcMem.SelectObject(&pen2);
+	dcMem.MoveTo(70, 75);
+	dcMem.LineTo(70, 85);
+	dcMem.MoveTo(15, 75);
+	dcMem.LineTo(15, 85);
+	dcMem.MoveTo(1850, 75);
+	dcMem.LineTo(1850, 85);
+	dcMem.MoveTo(1900, 75);
+	dcMem.LineTo(1900, 85);
 
-	pen.DeleteObject();
+	
+	//pDC->SelectObject(&pen2);
+	//pDC->MoveTo(70, 55);
+	//pDC->LineTo(70, 70);
+
+	//CBrush brushred;//红色笔刷
+	//brushred.CreateSolidBrush(RGB(255, 0, 0));
+	//CBrush brushgrey;//灰色笔刷
+	//brushgrey.CreateSolidBrush(RGB(190, 190, 190));
+	//dcMem.SelectObject(&pen1);
+	//dcMem.SelectObject(&brushred);
+	//dcMem.Ellipse(70,55, 85, 70);//第一个灯位绿色	
+	//dcMem.SelectObject(&brushgrey);
+	//dcMem.Ellipse(85, 55, 100, 70);//第二个灯位无色
 
 
-
+	//int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	for (int i = 0; i < 20; i++)
 	{
 		SetSigClr(RD.m_csignal[i].ID);
@@ -279,7 +305,7 @@ void StationYardView::DisCount(int x)//x是列车所处区段的防护信号机�
 			{
 				if (GetSigClr(RD.m_csignal[i].NextSig) == 4)
 				{
-					if (Num > 7)
+					if (Num >= 7)
 					{
 						TrEnd_x = GetSigX(RD.m_csignal[i].ID);
 					}
@@ -525,7 +551,7 @@ void StationYardView::SetState()
 			return -1;
 		m_button1.Create(_T("正线发车"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(10, 10, 110, 30), this, IDC_BUTTON1);
 		m_button2.Create(_T("正线接车"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(1800, 10, 1910, 30), this, IDC_BUTTON2);
-		m_button3.Create(_T("列车复位"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(1800, 45, 1910, 65), this, IDC_BUTTON3);
+		m_button3.Create(_T("列车复位"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(1680, 10, 1790, 30), this, IDC_BUTTON3);
 		// TODO:  在此添加您专用的创建代码
 
 		return 0;
